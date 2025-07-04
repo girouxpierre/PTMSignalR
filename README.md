@@ -6,7 +6,7 @@ Inferences rely on a statistical model linking potential L-R interactions with b
 A number of visualization and data summary functions are proposed to help navigating the predicted interactions.
 
 ## Installation
-``
+```
 # BulkSignalR and this extension are not included in BioConductor yet.
 # Installation goes via GitHub:
 # install.packages("devtools")
@@ -14,4 +14,4 @@ devtools::install_github("girouxpierre/PTMSignalR",build_vignettes = TRUE)
 
 # To read the vignette
 # browseVignettes("PTMSignalR")
-``
+```
