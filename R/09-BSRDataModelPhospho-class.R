@@ -1,31 +1,31 @@
 library(methods)
 
-#' BulkSignalR Data Model Phospho Object
+#' BulkSignalR Data Model PTM Object
 #'
 #' An S4 class to represent the expression data used for inferring
 #' ligand-receptor interactions.
 #'
 #' @slot ncounts   Normalized read count matrix. Row names must be set to HUGO
 #' official gene symbols.
-#' @slot phospho   Normalized read count matrix. Row names must be set to HUGO
+#' @slot PTM   Normalized read count matrix. Row names must be set to HUGO
 #' official gene symbols.
 #' @slot symPos   Dataframe of symbols and positions corresponding to rownames 
-#' of phospho in single PTM data
+#' of PTM in single PTM data
 #' @slot log.transformed  Logical indicating whether values in
 #' \code{ncounts} were log2-transformed.
 #' @slot normalization    Name of the normalization method.
-#' @slot single    Logical indicating whether phospho is single or multiple aa
+#' @slot single    Logical indicating whether PTM is single or multiple aa
 #' @slot param            List containing the statistical model parameters.
 #' @slot initial.organism         Organism for which the data were obtained.
 #' @slot initial.orthologs        List of genes for which human
 #' @export
 #' @examples
-#' new("BSRDataModelPhospho", ncounts=matrix(1.5, nrow=2, ncol=2,
+#' new("BSRDataModelPTM", ncounts=matrix(1.5, nrow=2, ncol=2,
 #'       dimnames=list(c("A","B"), c("C","D"))),
 #'       log.transformed=TRUE,
 #'       normalization="TC")
 #'
-setClass("BSRDataModelPhospho",
+setClass("BSRDataModelPTM",
          slots=c(initial.organism="character",
                  initial.orthologs="list",
                  ncounts="matrix",
@@ -34,13 +34,13 @@ setClass("BSRDataModelPhospho",
                  param="list",
                  symPos="matrix",
                  single="logical",
-                 phospho="matrix"
+                 PTM="matrix"
          ),
          prototype=list(
            initial.organism="hsapiens",
            initial.orthologs=list("A","B","C"),
            ncounts=matrix(1.0,nrow=2,ncol=1,dimnames=list(c("A","B"),"C")),
-           phospho=matrix(1.0,nrow=2,ncol=1,dimnames=list(c("A","B"),"C")),
+           PTM=matrix(1.0,nrow=2,ncol=1,dimnames=list(c("A","B"),"C")),
            symPos=matrix(1.0,nrow=2,ncol=1,dimnames=list(c("A","B"),"C")),
            log.transformed=FALSE,
            single=FALSE,
@@ -48,7 +48,7 @@ setClass("BSRDataModelPhospho",
            param=list(spatial.smooth=FALSE)
          ))
 
-setValidity("BSRDataModelPhospho",
+setValidity("BSRDataModelPTM",
             function(object) {
               if(!is.matrix(object@ncounts))
                 return("specified normalized counts are not a matrix")
@@ -63,7 +63,7 @@ setValidity("BSRDataModelPhospho",
             }
 )
 
-setMethod("show", "BSRDataModelPhospho",
+setMethod("show", "BSRDataModelPTM",
           function(object) {
             cat("\n Expression values are log2-transformed: ", object@log.transformed,
                 "\n", sep="")
@@ -76,12 +76,12 @@ setMethod("show", "BSRDataModelPhospho",
               cat(utils::head(object@ncounts[,1:8]))
             else
               cat(utils::head(object@ncounts))
-            cat("\n Phosphorylation data:\n")
-            if(!is.null(ncol(object@phospho))){
-              if (ncol(object@phospho) > 8)
-                cat(utils::head(object@phospho[,1:8]))
+            cat("\n PTMrylation data:\n")
+            if(!is.null(ncol(object@PTM))){
+              if (ncol(object@PTM) > 8)
+                cat(utils::head(object@PTM[,1:8]))
               else
-                cat(utils::head(object@phospho))
+                cat(utils::head(object@PTM))
             }
           }
 )
@@ -102,7 +102,7 @@ if (!isGeneric("initialOrganism")) {
 #' @aliases initialOrganism,BSRDataModel-method
 #' @param x Object BSRDataModel
 #' @export
-setMethod("initialOrganism", "BSRDataModelPhospho", function(x) x@initial.organism)
+setMethod("initialOrganism", "BSRDataModelPTM", function(x) x@initial.organism)
 
 
 if (!isGeneric("initialOrthologs")) {
@@ -134,7 +134,7 @@ if (!isGeneric("ncounts")) {
 #' @aliases ncounts,BSRDataModel-method
 #' @param x object BSRDataModel 
 #' @export
-setMethod("ncounts", "BSRDataModelPhospho", function(x) x@ncounts)
+setMethod("ncounts", "BSRDataModelPTM", function(x) x@ncounts)
 
 if (!isGeneric("ncounts<-")) {
   if (is.function("ncounts<-"))
@@ -148,42 +148,42 @@ if (!isGeneric("ncounts<-")) {
 #' @param x object BSRDataModel 
 #' @param value value to be set for BSRDataModel
 #' @keywords internal 
-setMethod("ncounts<-", "BSRDataModelPhospho", function(x,value){
+setMethod("ncounts<-", "BSRDataModelPTM", function(x,value){
   x@ncounts <- value
   methods::validObject(x)
   x
 })
 
 
-if (!isGeneric("phospho")) {
-  if (is.function("phospho"))
-    fun <- phospho
+if (!isGeneric("PTM")) {
+  if (is.function("PTM"))
+    fun <- PTM
   else
-    fun <- function(x) standardGeneric("phospho")
-  setGeneric("phospho", fun)
+    fun <- function(x) standardGeneric("PTM")
+  setGeneric("PTM", fun)
 }
-#' Normalized phospho matrix accessor
+#' Normalized PTM matrix accessor
 #'
-#' @name phospho
-#' @aliases phospho,BSRDataModelPhospho-method
-#' @param x object BSRDataModelPhospho 
+#' @name PTM
+#' @aliases PTM,BSRDataModelPTM-method
+#' @param x object BSRDataModelPTM 
 #' @export
-setMethod("phospho", "BSRDataModelPhospho", function(x) x@phospho)
+setMethod("PTM", "BSRDataModelPTM", function(x) x@PTM)
 
-if (!isGeneric("phospho<-")) {
-  if (is.function("phospho<-"))
-    fun <- `phospho<-`
+if (!isGeneric("PTM<-")) {
+  if (is.function("PTM<-"))
+    fun <- `PTM<-`
   else
-    fun <- function(x, value) standardGeneric("phospho<-")
-  setGeneric("phospho<-", fun)
+    fun <- function(x, value) standardGeneric("PTM<-")
+  setGeneric("PTM<-", fun)
 }
-#' Normalized phospho matrix setter (internal use only)
+#' Normalized PTM matrix setter (internal use only)
 #'
-#' @param x object BSRDataModelPhospho 
-#' @param value value to be set for BSRDataModelPhospho
+#' @param x object BSRDataModelPTM 
+#' @param value value to be set for BSRDataModelPTM
 #' @keywords internal 
-setMethod("phospho<-", "BSRDataModelPhospho", function(x,value){
-  x@phospho <- value
+setMethod("PTM<-", "BSRDataModelPTM", function(x,value){
+  x@PTM <- value
   methods::validObject(x)
   x
 })
@@ -202,7 +202,7 @@ if (!isGeneric("symPos")) {
 #' @aliases symPos,BSRDataModel-method
 #' @param x object BSRDataModel 
 #' @export
-setMethod("symPos", "BSRDataModelPhospho", function(x) x@symPos)
+setMethod("symPos", "BSRDataModelPTM", function(x) x@symPos)
 
 if (!isGeneric("symPos<-")) {
   if (is.function("symPos<-"))
@@ -216,7 +216,7 @@ if (!isGeneric("symPos<-")) {
 #' @param x object BSRDataModel 
 #' @param value value to be set for BSRDataModel
 #' @keywords internal 
-setMethod("symPos<-", "BSRDataModelPhospho", function(x,value){
+setMethod("symPos<-", "BSRDataModelPTM", function(x,value){
   x@symPos <- value
   methods::validObject(x)
   x
@@ -236,7 +236,7 @@ if (!isGeneric("param")) {
 #' @aliases param,BSRDataModel-method
 #' @param x BSRDataModel oject
 #' @export
-setMethod("param", "BSRDataModelPhospho", function(x) x@param)
+setMethod("param", "BSRDataModelPTM", function(x) x@param)
 
 if (!isGeneric("logTransformed")) {
   if (is.function("logTransformed"))
@@ -251,7 +251,7 @@ if (!isGeneric("logTransformed")) {
 #' @aliases logTransformed,BSRDataModel-method
 #' @param x Object BRSDataModel
 #' @export
-setMethod("logTransformed", "BSRDataModelPhospho", function(x) x@log.transformed)
+setMethod("logTransformed", "BSRDataModelPTM", function(x) x@log.transformed)
 
 
 if (!isGeneric("single")) {
@@ -267,7 +267,7 @@ if (!isGeneric("single")) {
 #' @aliases single,BSRDataModel-method
 #' @param x Object BRSDataModel
 #' @export
-setMethod("single", "BSRDataModelPhospho", function(x) x@single)
+setMethod("single", "BSRDataModelPTM", function(x) x@single)
 
 if (!isGeneric("normalization")) {
   if (is.function("normalization"))
@@ -282,7 +282,7 @@ if (!isGeneric("normalization")) {
 #' @aliases normalization,BSRDataModel-method
 #' @param x oject BSRDatamModel 
 #' @export
-setMethod("normalization", "BSRDataModelPhospho", function(x) x@normalization)
+setMethod("normalization", "BSRDataModelPTM", function(x) x@normalization)
 
 
 
@@ -380,7 +380,7 @@ if (!isGeneric("learnParameters")) {
 #' bsrdm <- learnParameters(bsrdm,plot.folder="./")
 #' bsrdm
 #' @importFrom methods new
-setMethod("learnParameters", "BSRDataModelPhospho", function(obj, plot.folder = NULL,
+setMethod("learnParameters", "BSRDataModelPTM", function(obj, plot.folder = NULL,
                                                       verbose = T, n.rand.LR = 5L, n.rand.RT = 2L, n.rand.RP = 2L,with.complex = TRUE,
                                                       max.pw.size = 200, min.pw.size = 5, min.positive = 4, quick = FALSE, single=FALSE,
                                                       null.model = c("automatic", "mixedNormal", "normal", "kernelEmpirical",
@@ -438,7 +438,7 @@ setMethod("learnParameters", "BSRDataModelPhospho", function(obj, plot.folder = 
   cat(obj@param$n.rand.LR)
   cat("\n obj@param :")
   cat(str(obj@param))
-  ds.LR.null <- .getEmpiricalNullCorrLR(obj@ncounts, obj@phospho,
+  ds.LR.null <- .getEmpiricalNullCorrLR(obj@ncounts, obj@PTM,
                                         n.rand=obj@param$n.rand.LR,
                                         min.cor=obj@param$min.corr.LR)
   cat("\n learnParameters - BSRDMP - ap .getEmpiricalNullCorrLR")
@@ -519,7 +519,7 @@ setMethod("learnParameters", "BSRDataModelPhospho", function(obj, plot.folder = 
     if (verbose)
       cat("\n Learning receptor-target correlation null distribution...\n")
     cat("\n learnParameters - BSRDMP - av getEmpiricalNull")
-    ds.RT.null <- .getEmpiricalNull(obj@ncounts, obj@phospho,
+    ds.RT.null <- .getEmpiricalNull(obj@ncounts, obj@PTM,
                                     n.rand = obj@param$n.rand.RT,
                                     with.complex = obj@param$with.complex,
                                     max.pw.size = obj@param$max.pw.size,
@@ -567,11 +567,11 @@ setMethod("learnParameters", "BSRDataModelPhospho", function(obj, plot.folder = 
   else {
     # RP correlations are actually learnt
     if (verbose)
-      cat("\n Learning receptor-phosphoprotein correlation null distribution...\n")
+      cat("\n Learning receptor-PTMprotein correlation null distribution...\n")
     #cat("\n obj@param$n.rand.RP :") #probleme là 2
     #cat(str(obj@param))
     #trainModelP <- .getKernelEmpiricalParam
-    ds.RP.null <- .getEmpiricalNullPhospho(obj@ncounts,obj@phospho,
+    ds.RP.null <- .getEmpiricalNullPTM(obj@ncounts,obj@PTM,
                                     n.rand = obj@param$n.rand.RP,
                                     with.complex = obj@param$with.complex,
                                     max.pw.size = obj@param$max.pw.size,
@@ -590,7 +590,7 @@ setMethod("learnParameters", "BSRDataModelPhospho", function(obj, plot.folder = 
     above <- unlist(strsplit(t$target.corr, split = "\\|"))
     cat("\n length :")
     cat(length(above))
-    #above <- unlist(strsplit(t$phospho.corr, split = "\\|"))
+    #above <- unlist(strsplit(t$PTM.corr, split = "\\|"))
     r.corrs <- NULL
     for (i in seq_len(length(above))) {
       corr <- as.numeric(strsplit(above[i], split = ";")[[1]])
@@ -703,11 +703,11 @@ if (!isGeneric("initialInference")) {
 #' bsrinf <- initialInference(bsrdm)
 #' bsrinf
 #' @importFrom methods new
-setMethod("initialInference", "BSRDataModelPhospho", function(obj, rank.p=0.55,
+setMethod("initialInference", "BSRDataModelPTM", function(obj, rank.p=0.55,
                                                        min.cor = 0.25,
                                                        restrict.genes = NULL, reference=c("REACTOME"),
                                                        max.pw.size=NULL, min.pw.size=NULL, min.positive=NULL, restrict.pw=NULL,
-                                                       with.complex=NULL,infPhos=NULL, fdr.proc=c("BH","Bonferroni","Holm","Hochberg",
+                                                       with.complex=NULL,infPTM=NULL, fdr.proc=c("BH","Bonferroni","Holm","Hochberg",
                                                                                      "SidakSS","SidakSD","BY","ABH","TSBH")){
   
   if (is.null(max.pw.size))
@@ -737,7 +737,7 @@ setMethod("initialInference", "BSRDataModelPhospho", function(obj, rank.p=0.55,
   pairs <- .checkReceptorSignalingInf(obj, lr, reference=reference,
                                    min.pw.size=min.pw.size, max.pw.size=max.pw.size,
                                    min.positive=min.positive, with.complex=with.complex,
-                                   restrict.pw=restrict.pw, infPhos = infPhos)
+                                   restrict.pw=restrict.pw, infPTM = infPTM)
   
   inf.param$fdr.proc <- fdr.proc
   inf.param$rank.p <- rank.p
@@ -746,11 +746,11 @@ setMethod("initialInference", "BSRDataModelPhospho", function(obj, rank.p=0.55,
   ligands <- strsplit(inter$L, ";")
   receptors <- strsplit(inter$R, ";")
   tg <- strsplit(inter$target.genes, ";")
-  pg <- strsplit(inter$target.genes.phos, ";")
+  pg <- strsplit(inter$target.genes.PTM, ";")
   tgcorr <- lapply(strsplit(inter$target.corr, ";"),
                    function(x) as.numeric(x))
   pgcorr <- NA
-  pgcorr <- lapply(strsplit(inter$target.phos.corr, ";"),
+  pgcorr <- lapply(strsplit(inter$target.PTM.corr, ";"),
                    function(x) as.numeric(x))
   #cat("\n pgcorr: \n")
   #cat(head(unlist(pgcorr)))
@@ -759,8 +759,8 @@ setMethod("initialInference", "BSRDataModelPhospho", function(obj, rank.p=0.55,
   inf.param$pathway.reduced <- FALSE
   
   new("BSRInference", LRinter=inter[,c("L","R","pw.id","pw.name","pval","qval","pvalLR","pvalRT","pvalRP",
-                                       "LR.corr","rank","len","len.phos","rank.corr","target.genes.phos","target.genes")], ligands=ligands,
-      receptors=receptors, t.genes=tg, tg.corr=tgcorr, phospho.genes=pg, pg.corr=pgcorr, 
+                                       "LR.corr","rank","len","len.PTM","rank.corr","target.genes.PTM","target.genes")], ligands=ligands,
+      receptors=receptors, t.genes=tg, tg.corr=tgcorr, PTM.genes=pg, pg.corr=pgcorr, 
       inf.param=inf.param)
   
 }) # initialInference
@@ -820,7 +820,7 @@ if (!isGeneric("scoreLRGeneSignatures")) {
 #'                        name.by.pathway=FALSE)
 #' @importFrom foreach %do% %dopar%
 #' @importFrom methods is
-setMethod("scoreLRGeneSignatures", "BSRDataModelPhospho", function(obj,
+setMethod("scoreLRGeneSignatures", "BSRDataModelPTM", function(obj,
                                                             sig, LR.weight=0.5, robust=FALSE,
                                                             name.by.pathway=FALSE, abs.z.score=FALSE,rownames.LRP=FALSE){
   

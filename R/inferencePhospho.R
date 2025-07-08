@@ -27,7 +27,7 @@
   # local binding
   i <- NULL
   
-  cat("\n .getCorrelatedLR - inferencePhospho 2")
+  cat("\n .getCorrelatedLR - inferencePTM 2")
   if ((min.cor < -1) || (min.cor > 1))
     stop("min.cor must lie in [-1;+1]")
   # if (!is(ds, "BSRDataModel"))
@@ -133,32 +133,32 @@
 }  # .getCorrelatedLR
 
 
-#' Get correlated receptor-phosphoprotein pairs. (sert a rien ?)
+#' Get correlated receptor-PTMprotein pairs. (sert a rien ?)
 #'
 #' Internal function to compute the Spearman correlations
-#' of all the receptor-phosphoprotein
+#' of all the receptor-PTMprotein
 #' pairs in LRdb and return those above a minimum value.
 #'
 #' @param ds              A BSRDataModel object.
 #' @param min.cor         The minimum correlation required.
-#' @param restrict.genes  A list of gene symbols that restricts phosphoprotein and
+#' @param restrict.genes  A list of gene symbols that restricts PTMprotein and
 #'   receptors.
 #'
-#' @return A data frame containing putative receptor-phosphoprotein pairs along
+#' @return A data frame containing putative receptor-PTMprotein pairs along
 #'   with their correlations above \code{min.cor}. This table is the first step
-#'   of a receptor-phosphoprotein analysis.
+#'   of a receptor-PTMprotein analysis.
 #'
 #'
 #' @details The \code{restrict.genes} parameter is used for special cases where
 #'   LRdb must be further restricted to a subset.
-#'   The putative receptor-phosphoprotein pairs has 3 columns : R, P and corr.
+#'   The putative receptor-PTMprotein pairs has 3 columns : R, P and corr.
 #'
 #' @importFrom methods is
 #' @importFrom foreach %do% %dopar%
 #' @import doParallel
 #' @keywords internal
 .getCorrelatedRP <- function(ds, min.cor = 0.25, restrict.genes = NULL) {
-  cat("\n .getCorrelatedRP - inferencePhospho ")
+  cat("\n .getCorrelatedRP - inferencePTM ")
   # local binding
   i <- NULL
   
@@ -222,15 +222,15 @@
 #' @param with.complex    A logical indicating whether receptor co-complex
 #'   members should be included in the target genes.
 #'
-#' @return A table reporting all the receptor-phosphoprotein pairs provided in \code{lr}
+#' @return A table reporting all the receptor-PTMprotein pairs provided in \code{lr}
 #'   along with the pathways found and data about target gene correlations with
 #'   the receptor.
 #'
 #' @importFrom foreach %do% %dopar%
 #' @keywords internal
 
-#on s'en fout en phospho !!
-.downstreamSignaling <- function(lr, pw, pw.size, rncounts, phospho, id.col, gene.col,
+#on s'en fout en PTM !!
+.downstreamSignaling <- function(lr, pw, pw.size, rncounts, PTM, id.col, gene.col,
                                  pw.col, min.positive=4, with.complex = TRUE) {
   if (!is.matrix(rncounts))
     stop("rncounts must be a matrix")
@@ -238,14 +238,14 @@
   # local binding
   r <- p <- pl <- id <- NULL
   
-  cat("\n .downstreamSignaling - inferencePhospho ")
+  cat("\n .downstreamSignaling - inferencePTM ")
   # define interaction types
   control.int <- "controls-expression-of"
   incomplex.int <- c("in-complex-with","interacts-with")
   directed.int <- c("controls-state-change-of", "catalysis-precedes",
                     "controls-expression-of", "controls-transport-of",
-                    "controls-phosphorylation-of")
-  phosph.int <- "controls-phosphorylation-of"
+                    "controls-PTMrylation-of")
+  PTMph.int <- "controls-PTMrylation-of"
   if (with.complex)
     correlated.int <- union(control.int, incomplex.int)
   else
@@ -391,27 +391,27 @@
 #' @param with.complex    A logical indicating whether receptor co-complex
 #'   members should be included in the target genes.
 #'
-#' @return A table reporting all the receptor-phosphoprotein pairs provided in \code{lr}
+#' @return A table reporting all the receptor-PTMprotein pairs provided in \code{lr}
 #'   along with the pathways found and data about target gene correlations with
 #'   the receptor.
 #'
 #' @importFrom foreach %do% %dopar%
 #' @keywords internal
-.downstreamSignalingPhospho <- function(lr, pw, pw.size, rncounts, phospho, id.col, gene.col,
+.downstreamSignalingPTM <- function(lr, pw, pw.size, rncounts, PTM, id.col, gene.col,
                                  pw.col, min.positive=1, with.complex = TRUE,symPos=NULL) {
   if (!is.matrix(rncounts))
     stop("rncounts must be a matrix")
   
   # local binding
   r <- p <- pl <- id <- NULL
-  cat("\n .downstreamSignalingPhospho - inferencePhospho ")
+  cat("\n .downstreamSignalingPTM - inferencePTM ")
   # define interaction types
   control.int <- "controls-expression-of"
   incomplex.int <- c("in-complex-with","interacts-with")
   directed.int <- c("controls-state-change-of", "catalysis-precedes",
                     "controls-expression-of", "controls-transport-of",
-                    "controls-phosphorylation-of")
-  phosph.int <- "controls-phosphorylation-of"
+                    "controls-PTMrylation-of")
+  PTMph.int <- "controls-PTMrylation-of"
   if (with.complex)
     correlated.int <- union(control.int, incomplex.int)
   else
@@ -421,24 +421,24 @@
   cat("\n Avant filtre: ")
   cat("\n dim ncounts: ")
   cat(dim(rncounts))
-  cat("\n dim phospho: ")
-  cat(dim(phospho))
+  cat("\n dim PTM: ")
+  cat(dim(PTM))
   
-  #rncounts <- rncounts[rownames(rncounts) %in% rownames(phospho),]
-  rncounts <- rncounts[,colnames(rncounts) %in% colnames(phospho)]
+  #rncounts <- rncounts[rownames(rncounts) %in% rownames(PTM),]
+  rncounts <- rncounts[,colnames(rncounts) %in% colnames(PTM)]
   rncounts <- rncounts[,order(colnames(rncounts))]
   #rncounts <- rncounts[order(rownames(rncounts)),]
-  phospho <- phospho[,colnames(phospho) %in% colnames(rncounts)]
-  phospho <- phospho[,order(colnames(phospho))]
-  #phospho <- phospho[order(rownames(phospho)),]
+  PTM <- PTM[,colnames(PTM) %in% colnames(rncounts)]
+  PTM <- PTM[,order(colnames(PTM))]
+  #PTM <- PTM[order(rownames(PTM)),]
   
   cat("\n Apres filtre: ")
   cat("\n dim ncounts: ")
   cat(dim(rncounts))
-  cat("\n dim phospho: ")
-  cat(dim(phospho))
+  cat("\n dim PTM: ")
+  cat(dim(PTM))
   
-  corrg <- stats::cor(t(rncounts), t(phospho), method = "spearman")
+  corrg <- stats::cor(t(rncounts), t(PTM), method = "spearman")
   cat("\n dim corrg: ")
   cat(dim(corrg))
   # the global computation above is faster than restricted to the receptors
@@ -495,7 +495,7 @@
           # eliminate ligands of the receptor if present
           target.genes <- setdiff(target.genes, receptor.ligands)
           
-          #get target genes that can be phosphorylated 
+          #get target genes that can be PTMrylated 
           #target.genes.bis <- mergedPwCtrl["PathwayName"==p & "source" %in% c(target.genes,receptor.ligands) & "target" %in% target.genes, "genePos"]
           target.genes.bis <- subset(mergedPwCtrl, PathwayName==p & source %in% c(target.genes,receptor.ligands) & target %in% target.genes)$genePos
           #target.genes.bis.name <- mergedPwCtrl["PathwayName"==p & "source" %in% target.genes, "target"]
@@ -628,7 +628,7 @@
   conf.pairs[,c("L", "R", "corr", "pwid", "pwname", "len", "target.genes",
                 "target.corr")]
   
-}  # .downstreamSignalingPhospho
+}  # .downstreamSignalingPTM
 
 
 
@@ -653,27 +653,27 @@
 #' @param with.complex    A logical indicating whether receptor co-complex
 #'   members should be included in the target genes.
 #'
-#' @return A table reporting all the receptor-phosphoprotein pairs provided in \code{lr}
+#' @return A table reporting all the receptor-PTMprotein pairs provided in \code{lr}
 #'   along with the pathways found and data about target gene correlations with
 #'   the receptor.
 #'
 #' @importFrom foreach %do% %dopar%
 #' @keywords internal
-.downstreamSignalingPhosphoInf <- function(lr, pw, pw.size, rncounts, phospho, id.col, gene.col,
+.downstreamSignalingPTMInf <- function(lr, pw, pw.size, rncounts, PTM, id.col, gene.col,
                                         pw.col, min.positive=1, with.complex = TRUE,symPos=NULL) {
   if (!is.matrix(rncounts))
     stop("rncounts must be a matrix")
-  fichier_sortie <- "/data2/USERS/giroux/phospho/zhang/bisNA/sortie.txt"
+  fichier_sortie <- "/data2/USERS/giroux/PTM/zhang/bisNA/sortie.txt"
   # local binding
   r <- p <- pl <- id <- NULL
-  cat("\n .downstreamSignalingPhospho - inferencePhospho ")
+  cat("\n .downstreamSignalingPTM - inferencePTM ")
   # define interaction types
   control.int <- "controls-expression-of"
   incomplex.int <- c("in-complex-with","interacts-with")
   directed.int <- c("controls-state-change-of", "catalysis-precedes",
                     "controls-expression-of", "controls-transport-of",
-                    "controls-phosphorylation-of")
-  phosph.int <- "controls-phosphorylation-of"
+                    "controls-PTMrylation-of")
+  PTMph.int <- "controls-PTMrylation-of"
   if (with.complex)
     correlated.int <- union(control.int, incomplex.int)
   else
@@ -683,26 +683,26 @@
   cat("\n Avant filtre: ")
   cat("\n dim ncounts: ")
   cat(dim(rncounts))
-  cat("\n dim phospho: ")
-  cat(dim(phospho))
+  cat("\n dim PTM: ")
+  cat(dim(PTM))
   
-  #rncounts <- rncounts[rownames(rncounts) %in% rownames(phospho),]
-  rncounts <- rncounts[,colnames(rncounts) %in% colnames(phospho)]
+  #rncounts <- rncounts[rownames(rncounts) %in% rownames(PTM),]
+  rncounts <- rncounts[,colnames(rncounts) %in% colnames(PTM)]
   rncounts <- rncounts[,order(colnames(rncounts))]
   #rncounts <- rncounts[order(rownames(rncounts)),]
-  phospho <- phospho[,colnames(phospho) %in% colnames(rncounts)]
-  phospho <- phospho[,order(colnames(phospho))]
-  #phospho <- phospho[order(rownames(phospho)),]
+  PTM <- PTM[,colnames(PTM) %in% colnames(rncounts)]
+  PTM <- PTM[,order(colnames(PTM))]
+  #PTM <- PTM[order(rownames(PTM)),]
   
   cat("\n Apres filtre: ")
   cat("\n dim ncounts: ")
   cat(dim(rncounts))
-  cat("\n dim phospho: ")
-  cat(dim(phospho))
+  cat("\n dim PTM: ")
+  cat(dim(PTM))
   
   
   corrg <- stats::cor(t(rncounts), method = "spearman")
-  corrgp <- stats::cor(t(rncounts), t(phospho), method = "spearman")
+  corrgp <- stats::cor(t(rncounts), t(PTM), method = "spearman")
   cat("\n dim corrg: ")
   cat(dim(corrg))
   # the global computation above is faster than restricted to the receptors
@@ -759,17 +759,17 @@
           # eliminate ligands of the receptor if present
           target.genes <- setdiff(target.genes, receptor.ligands)
           
-          #get target genes that can be phosphorylated 
+          #get target genes that can be PTMrylated 
           #i.e. source and target detected in tg
           
           #target.genes.bis <- mergedPwCtrl["PathwayName"==p & "source" %in% c(target.genes,receptor.ligands) & "target" %in% target.genes, "genePos"]
-          target.genes.phos.pos <- unique(subset(mergedPwCtrl, PathwayName==p & source %in% c(target.genes,receptor.ligands) & target %in% target.genes)$genePos)
-          target.genes.phos.name <- unique(subset(mergedPwCtrl, PathwayName==p & source %in% c(target.genes,receptor.ligands) & target %in% target.genes)$target)
+          target.genes.PTM.pos <- unique(subset(mergedPwCtrl, PathwayName==p & source %in% c(target.genes,receptor.ligands) & target %in% target.genes)$genePos)
+          target.genes.PTM.name <- unique(subset(mergedPwCtrl, PathwayName==p & source %in% c(target.genes,receptor.ligands) & target %in% target.genes)$target)
           #target.genes.bis.pos <- mergedPwCtrl["PathwayName"==p & "source" %in% target.genes, "pos"]
           if(p=="R-HSA-9607240" | p=="R-HSA-6811558"){
             cat(p, file = fichier_sortie, append = TRUE)
-            cat("\n target.genes.phos.pos : ", file = fichier_sortie, append = TRUE)
-            cat(target.genes.phos.pos, file = fichier_sortie, append = TRUE)
+            cat("\n target.genes.PTM.pos : ", file = fichier_sortie, append = TRUE)
+            cat(target.genes.PTM.pos, file = fichier_sortie, append = TRUE)
           }
           #target.genes <- target.genes.bis
           # if(m==1 | m%%20==0){
@@ -800,28 +800,28 @@
             # cat(length(c))
             
             
-            phosTheoricalPres <- unique(target.genes.phos.pos[target.genes.phos.pos %in% colnames(corrgp)])
-            tmpNA <- grepl("_NA", target.genes.phos.pos, fixed = TRUE)
-            target.genes.phos.posNA <- target.genes.phos.pos[tmpNA]
-            target.genes.phos.nameNA <- target.genes.phos.name[tmpNA]
-            if(length(target.genes.phos.posNA) > 0){
+            PTMTheoricalPres <- unique(target.genes.PTM.pos[target.genes.PTM.pos %in% colnames(corrgp)])
+            tmpNA <- grepl("_NA", target.genes.PTM.pos, fixed = TRUE)
+            target.genes.PTM.posNA <- target.genes.PTM.pos[tmpNA]
+            target.genes.PTM.nameNA <- target.genes.PTM.name[tmpNA]
+            if(length(target.genes.PTM.posNA) > 0){
               listPos <- c()
-              for(g in target.genes.phos.nameNA){
+              for(g in target.genes.PTM.nameNA){
                 tmpCol <- grepl(paste0(g,"_"), colnames(corrgp))
                 tmpPo <- NA
                 tmpPo <- colnames(corrgp)[tmpCol]
                 listPos <- c(listPos, tmpPo)
               }
               if(!is.null(tmpPo) && length(tmpPo) > 0)
-                phosTheoricalPres <- c(phosTheoricalPres, tmpPo)
+                PTMTheoricalPres <- c(PTMTheoricalPres, tmpPo)
             }
-            target.genes.phos <- phosTheoricalPres
+            target.genes.PTM <- PTMTheoricalPres
             if(p=="R-HSA-9607240" | p=="R-HSA-6811558"){
-              cat("\n phosTheoricalPres : ", file = fichier_sortie, append = TRUE)
-              cat(phosTheoricalPres, file = fichier_sortie, append = TRUE)
+              cat("\n PTMTheoricalPres : ", file = fichier_sortie, append = TRUE)
+              cat(PTMTheoricalPres, file = fichier_sortie, append = TRUE)
             }
-            if(length(phosTheoricalPres)>0 && r %in% rownames(corrgp)){
-              cp <- corrgp[r, phosTheoricalPres]
+            if(length(PTMTheoricalPres)>0 && r %in% rownames(corrgp)){
+              cp <- corrgp[r, PTMTheoricalPres]
               
               # cat("\n \n \n dim c: \n")
               # cat(length(c))
@@ -842,16 +842,16 @@
               
               op <- order(cp)
               cp <- cp[op]
-              target.genes.phos <- target.genes.phos[op]
-              len.phos <- length(cp)
+              target.genes.PTM <- target.genes.PTM[op]
+              len.PTM <- length(cp)
             }
             else{
               cp <- c(NA)
-              len.phos <- 0
+              len.PTM <- 0
             }
             if(p=="R-HSA-9607240" | p=="R-HSA-6811558"){
-              cat("\n target.genes.phos : ", file = fichier_sortie, append = TRUE)
-              cat(target.genes.phos, file = fichier_sortie, append = TRUE)
+              cat("\n target.genes.PTM : ", file = fichier_sortie, append = TRUE)
+              cat(target.genes.PTM, file = fichier_sortie, append = TRUE)
             }
             # cat("\n \n \n 2dim c: \n")
             # cat(length(c))
@@ -867,17 +867,17 @@
             c <- c[o]
             target.genes <- target.genes[o]
             # cat("\n head: \n")
-            # cat(unlist(head(data.frame(pathway=p, target.corr=paste(c,collapse=";"), target.phos.corr=paste(cp,collapse=";"),
+            # cat(unlist(head(data.frame(pathway=p, target.corr=paste(c,collapse=";"), target.PTM.corr=paste(cp,collapse=";"),
             #                            target.genes=paste(target.genes,collapse=";"),
-            #                            target.genes.phos=paste(target.genes.phos,collapse=";"),
+            #                            target.genes.PTM=paste(target.genes.PTM,collapse=";"),
             #                            len=length(c),
-            #                            len.phos=len.phos,
+            #                            len.PTM=len.PTM,
             #                            stringsAsFactors=FALSE))))
-            data.frame(pathway=p, target.corr=paste(c,collapse=";"), target.phos.corr=paste(cp,collapse=";"),
+            data.frame(pathway=p, target.corr=paste(c,collapse=";"), target.PTM.corr=paste(cp,collapse=";"),
                        target.genes=paste(target.genes,collapse=";"),
-                       target.genes.phos=paste(target.genes.phos,collapse=";"),
+                       target.genes.PTM=paste(target.genes.PTM,collapse=";"),
                        len=length(c),
-                       len.phos=len.phos,
+                       len.PTM=len.PTM,
                        stringsAsFactors=FALSE)
           }
           else{
@@ -901,10 +901,10 @@
         data.frame(R=r, pathways=paste(best.2nd$pathway, collapse="|"),
                    target.corr=paste(best.2nd$target.corr, collapse='|'),
                    target.genes=paste(best.2nd$target.genes, collapse='|'),
-                   target.phos.corr=paste(best.2nd$target.phos.corr, collapse='|'),
-                   target.genes.phos=paste(best.2nd$target.genes.phos, collapse='|'),
+                   target.PTM.corr=paste(best.2nd$target.PTM.corr, collapse='|'),
+                   target.genes.PTM=paste(best.2nd$target.genes.PTM, collapse='|'),
                    len=paste(best.2nd$len, collapse='|'),
-                   len.phos=paste(best.2nd$len.phos, collapse='|'),
+                   len.PTM=paste(best.2nd$len.PTM, collapse='|'),
                    stringsAsFactors=FALSE)
       }
       else{
@@ -931,9 +931,9 @@
   conf.pairs$target.corr <- reg.proc[conf.pairs$R, "target.corr"]
   conf.pairs$len <- reg.proc[conf.pairs$R, "len"]
   conf.pairs$target.genes <- reg.proc[conf.pairs$R, "target.genes"]
-  conf.pairs$target.phos.corr <- reg.proc[conf.pairs$R, "target.phos.corr"]
-  conf.pairs$len.phos <- reg.proc[conf.pairs$R, "len.phos"]
-  conf.pairs$target.genes.phos <- reg.proc[conf.pairs$R, "target.genes.phos"]
+  conf.pairs$target.PTM.corr <- reg.proc[conf.pairs$R, "target.PTM.corr"]
+  conf.pairs$len.PTM <- reg.proc[conf.pairs$R, "len.PTM"]
+  conf.pairs$target.genes.PTM <- reg.proc[conf.pairs$R, "target.genes.PTM"]
   pw.name <- unique(pw[,c(id.col, pw.col)])
   pw2name <- stats::setNames(pw.name[[2]], pw.name[[1]])
   #cat("\n 6 \n")
@@ -948,10 +948,10 @@
   }
   
   conf.pairs[,c("L", "R", "corr", "pwid", "pwname", "len", "target.genes",
-                "target.corr", "len.phos", "target.genes.phos",
-                "target.phos.corr")]
+                "target.corr", "len.PTM", "target.genes.PTM",
+                "target.PTM.corr")]
   
-}  # .downstreamSignalingPhosphoInf
+}  # .downstreamSignalingPTMInf
 
 
 #' Internal function to check receptor signaling downstream
@@ -976,7 +976,7 @@
 #'   the function.
 #' @param with.complex    A logical indicating whether receptor co-complex
 #'   members should be included in the target genes.
-#' @param infPhos    A logical indicating whether receptor co-complex
+#' @param infPTM    A logical indicating whether receptor co-complex
 #'   members should be included in the target genes.
 #' @return A data frame extending \code{lr} content with the pathways found to
 #' contain the receptors and data about target gene correlations with those
@@ -1004,7 +1004,7 @@
 .checkReceptorSignaling <- function(ds, lr, reference=c("REACTOME"),
                                     max.pw.size=200, min.pw.size=5,
                                     min.positive=4, restrict.pw=NULL,
-                                    with.complex=TRUE, infPhos=FALSE){
+                                    with.complex=TRUE, infPTM=FALSE){
   
   # if (!is(ds, "BSRDataModel"))
   #     stop("ds must be a BSRDataModel object")
@@ -1015,7 +1015,7 @@
   
   reference <- match.arg(reference)
   results <- list()
-  cat("\n checkReceptorSignaling - inferencePhospho ")
+  cat("\n checkReceptorSignaling - inferencePTM ")
   
   # Reactome pathways
   if (reference %in% c("REACTOME-GOBP","REACTOME")){
@@ -1036,11 +1036,11 @@
     cat("\n \n all: \n", length(corgenes))
     cat("\n \n in: \n", sum(corgenes %in% rownames(ncounts(ds))))
     #cat("\n \n alone: \n", corgenes[!c(corgenes %in% rownames(ncounts(ds)))])
-    if(infPhos){
-      cat("\n infPhos 1r")
+    if(infPTM){
+      cat("\n infPTM 1r")
       if(is.null(ds@symPos) || is.na(ds@symPos) || dim(ds@symPos) == c(1,1)){
         cat("\n if \n")
-        corgenesP <- rownames(ds@phospho)[rownames(ds@phospho) %in% corgenes]
+        corgenesP <- rownames(ds@PTM)[rownames(ds@PTM) %in% corgenes]
         cat("\n corgenesP: \n", corgenesP)
       }
       else{
@@ -1051,16 +1051,16 @@
         corgenesP <- paste0(corgenesnamesP, "_", corgenesposP)#AAS_12
         cat("\n corgenesP: \n", corgenesP)
       }
-      cat("\n infPhos 12r")
-      phosphoCorr <- ds@phospho[corgenesP,]
+      cat("\n infPTM 12r")
+      PTMCorr <- ds@PTM[corgenesP,]
       corgenes2 <- corgenes[corgenes %in% rownames(ncounts(ds))]
-      cat("\n infPhos 2r")
-      results$reactome.pairs <- .downstreamSignalingPhospho(lr, react, pw.size,
-                                                            ncounts(ds)[corgenes2,], phosphoCorr, id.col="Reactome ID", gene.col="Gene name",
+      cat("\n infPTM 2r")
+      results$reactome.pairs <- .downstreamSignalingPTM(lr, react, pw.size,
+                                                            ncounts(ds)[corgenes2,], PTMCorr, id.col="Reactome ID", gene.col="Gene name",
                                                             pw.col="Reactome name", min.positive, with.complex=with.complex,symPos=ds@symPos)
     }
     else{
-      cat("\n notInfPhos 1r")
+      cat("\n notInfPTM 1r")
       results$reactome.pairs <- .downstreamSignaling(lr, react, pw.size,
                                                      ncounts(ds)[corgenes,], id.col="Reactome ID", gene.col="Gene name",
                                                      pw.col="Reactome name", min.positive, with.complex=with.complex)
@@ -1080,21 +1080,21 @@
     corgenes <- unique(c(lr$R,
                          go[go$`GO ID` %in% names(pw.size), "Gene name"])
     )
-    if(infPhos){
-      #cat("\n infPhos 1g")
+    if(infPTM){
+      #cat("\n infPTM 1g")
       corgenesposPbool <- ds@symPos[,1] %in% corgenes
       corgenesnamesP <- ds@symPos[corgenesposPbool,1]
       corgenesposP <- ds@symPos[corgenesposPbool,2]
       corgenesP <- paste0(corgenesnamesP, "_", corgenesposP)#AAS_12
-      phosphoCorr <- ds@phospho[corgenesP,]
+      PTMCorr <- ds@PTM[corgenesP,]
       corgenes2 <- corgenes[corgenes %in% rownames(ncounts(ds))]
-      #cat("\n infPhos 2g")
-      results$gobp.pairs <- .downstreamSignalingPhospho(lr, go, pw.size,
-                                                        ncounts(ds)[corgenes2,], phosphoCorr, id.col="GO ID", gene.col="Gene name",
+      #cat("\n infPTM 2g")
+      results$gobp.pairs <- .downstreamSignalingPTM(lr, go, pw.size,
+                                                        ncounts(ds)[corgenes2,], PTMCorr, id.col="GO ID", gene.col="Gene name",
                                                         pw.col="GO name", min.positive, with.complex=with.complex,symPos=ds@symPos)
     }
     else{
-      #cat("\n notInfPhos 1g")
+      #cat("\n notInfPTM 1g")
       results$gobp.pairs <- .downstreamSignaling(lr, go, pw.size,
                                                  ncounts(ds)[corgenes,], id.col="GO ID", gene.col="Gene name",
                                                  pw.col="GO name", min.positive, with.complex=with.complex)
@@ -1152,7 +1152,7 @@
 #'   the function.
 #' @param with.complex    A logical indicating whether receptor co-complex
 #'   members should be included in the target genes.
-#' @param infPhos    A logical indicating whether receptor co-complex
+#' @param infPTM    A logical indicating whether receptor co-complex
 #'   members should be included in the target genes.
 #' @return A data frame extending \code{lr} content with the pathways found to
 #' contain the receptors and data about target gene correlations with those
@@ -1180,7 +1180,7 @@
 .checkReceptorSignalingInf <- function(ds, lr, reference=c("REACTOME"),
                                     max.pw.size=200, min.pw.size=5,
                                     min.positive=4, restrict.pw=NULL,
-                                    with.complex=TRUE, infPhos=FALSE){
+                                    with.complex=TRUE, infPTM=FALSE){
   
   # if (!is(ds, "BSRDataModel"))
   #     stop("ds must be a BSRDataModel object")
@@ -1191,7 +1191,7 @@
   
   reference <- match.arg(reference)
   results <- list()
-  cat("\n checkReceptorSignalingInf - inferencePhospho ")
+  cat("\n checkReceptorSignalingInf - inferencePTM ")
   
   # Reactome pathways
   if (reference %in% c("REACTOME-GOBP","REACTOME")){
@@ -1205,24 +1205,24 @@
     corgenes <- unique(c(lr$R,
                          react[react$`Reactome ID` %in% names(pw.size), "Gene name"])
     )
-    if(infPhos){
-      #cat("\n infPhos 1r")
+    if(infPTM){
+      #cat("\n infPTM 1r")
       # corgenesposPbool <- ds@symPos[,1] %in% corgenes
       # corgenesnamesP <- ds@symPos[corgenesposPbool,1]
       # corgenesposP <- ds@symPos[corgenesposPbool,2]
       # corgenesP <- paste0(corgenesnamesP, "_", corgenesposP)#AAS_12
-      # phosphoCorr <- ds@phospho[corgenesP,]
+      # PTMCorr <- ds@PTM[corgenesP,]
       # corgenes2 <- corgenes[corgenes %in% rownames(ncounts(ds))]
-      # cat("\n infPhos 2r")
-      # results$reactome.pairs <- .downstreamSignalingPhosphoInf(lr, react, pw.size,
-      #                                                       ncounts(ds)[corgenes2,], phosphoCorr, id.col="Reactome ID", gene.col="Gene name",
+      # cat("\n infPTM 2r")
+      # results$reactome.pairs <- .downstreamSignalingPTMInf(lr, react, pw.size,
+      #                                                       ncounts(ds)[corgenes2,], PTMCorr, id.col="Reactome ID", gene.col="Gene name",
       #                                                       pw.col="Reactome name", min.positive, with.complex=with.complex,symPos=ds@symPos)
-      results$reactome.pairs <- .downstreamSignalingPhosphoInf(lr, react, pw.size,
-                                                               ncounts(ds), ds@phospho, id.col="Reactome ID", gene.col="Gene name",
+      results$reactome.pairs <- .downstreamSignalingPTMInf(lr, react, pw.size,
+                                                               ncounts(ds), ds@PTM, id.col="Reactome ID", gene.col="Gene name",
                                                                pw.col="Reactome name", min.positive, with.complex=with.complex,symPos=ds@symPos)
     }
     else{
-      #cat("\n notInfPhos 1r")
+      #cat("\n notInfPTM 1r")
       results$reactome.pairs <- .downstreamSignaling(lr, react, pw.size,
                                                      ncounts(ds)[corgenes,], id.col="Reactome ID", gene.col="Gene name",
                                                      pw.col="Reactome name", min.positive, with.complex=with.complex)
@@ -1242,24 +1242,24 @@
     corgenes <- unique(c(lr$R,
                          go[go$`GO ID` %in% names(pw.size), "Gene name"])
     )
-    if(infPhos){
-      #cat("\n infPhos 1g")
+    if(infPTM){
+      #cat("\n infPTM 1g")
       # corgenesposPbool <- ds@symPos[,1] %in% corgenes
       # corgenesnamesP <- ds@symPos[corgenesposPbool,1]
       # corgenesposP <- ds@symPos[corgenesposPbool,2]
       # corgenesP <- paste0(corgenesnamesP, "_", corgenesposP)#AAS_12
-      # phosphoCorr <- ds@phospho[corgenesP,]
+      # PTMCorr <- ds@PTM[corgenesP,]
       # corgenes2 <- corgenes[corgenes %in% rownames(ncounts(ds))]
-      # cat("\n infPhos 2g")
-      # results$gobp.pairs <- .downstreamSignalingPhospho(lr, go, pw.size,
-      #                                                   ncounts(ds)[corgenes2,], phosphoCorr, id.col="GO ID", gene.col="Gene name",
+      # cat("\n infPTM 2g")
+      # results$gobp.pairs <- .downstreamSignalingPTM(lr, go, pw.size,
+      #                                                   ncounts(ds)[corgenes2,], PTMCorr, id.col="GO ID", gene.col="Gene name",
       #                                                   pw.col="GO name", min.positive, with.complex=with.complex,symPos=ds@symPos)
-      results$reactome.pairs <- .downstreamSignalingPhosphoInf(lr, go, pw.size,
-                                                               ncounts(ds), ds@phospho, id.col="GO ID", gene.col="Gene name",
+      results$reactome.pairs <- .downstreamSignalingPTMInf(lr, go, pw.size,
+                                                               ncounts(ds), ds@PTM, id.col="GO ID", gene.col="Gene name",
                                                                pw.col="GO name", min.positive, with.complex=with.complex,symPos=ds@symPos)
     }
     else{
-      #cat("\n notInfPhos 1g")
+      #cat("\n notInfPTM 1g")
       results$gobp.pairs <- .downstreamSignaling(lr, go, pw.size,
                                                  ncounts(ds)[corgenes,], id.col="GO ID", gene.col="Gene name",
                                                  pw.col="GO name", min.positive, with.complex=with.complex)
@@ -1351,16 +1351,16 @@
     # cat("\n")
     # cat(colnames(pairs))
     # cat("\n")
-    # cat(pairs$target.genes.phos)
+    # cat(pairs$target.genes.PTM)
     pwid <- unlist(strsplit(pairs$pwid[i],split="\\|"))
     pwname <- unlist(strsplit(pairs$pwname[i],split="\\|"))
     tg <- unlist(strsplit(pairs$target.genes[i],split="\\|"))
-    #pg <- unlist(strsplit(pairs$target.genes.phos[i],split="\\|"))
+    #pg <- unlist(strsplit(pairs$target.genes.PTM[i],split="\\|"))
     spear <- unlist(strsplit(pairs$target.corr[i],split="\\|"))
     len <- as.numeric(unlist(strsplit(pairs$len[i],split="\\|")))
-    spear.phos <- NA
-    spear.phos <- unlist(strsplit(pairs$target.phos.corr[i],split="\\|"))
-    len.phos <- as.numeric(unlist(strsplit(pairs$len.phos[i],split="\\|")))
+    spear.PTM <- NA
+    spear.PTM <- unlist(strsplit(pairs$target.PTM.corr[i],split="\\|"))
+    len.PTM <- as.numeric(unlist(strsplit(pairs$len.PTM[i],split="\\|")))
     
     # estimate the LR correlation P-value
     if (pairs$corr[i] >= 0)
@@ -1383,7 +1383,7 @@
       # difficult to get as little as r-1 corr < rank.corr by chance!
       p.rt <- stats::pbinom(r-1, len[k], cdf(rank.corr, RT.par))
       #p.rp <- stats::pbinom(r-1, len[k], cdf(rank.corr, RP.par))
-      #create new df melant prot et phos
+      #create new df melant prot et PTM
       #learnparam(df)
       #p.rtp
       p.rtp <- p.rt
@@ -1391,10 +1391,10 @@
       
       res <- rbind(res,data.frame(pairs[i,c("L","R")],
                                   LR.corr=pairs[i,"corr"], pw.id=pwid[k],
-                                  pw.name=pwname[k], rank=r, len=len[k], len.phos=len.phos[k],
+                                  pw.name=pwname[k], rank=r, len=len[k], len.PTM=len.PTM[k],
                                   rank.corr=rank.corr, target.genes=tg[k],
-                                  target.corr=spear[k], target.genes.phos=pg[k],
-                                  target.phos.corr=spear.phos[k], pval=p.lr*p.rtp,
+                                  target.corr=spear[k], target.genes.PTM=pg[k],
+                                  target.PTM.corr=spear.PTM[k], pval=p.lr*p.rtp,
                                   stringsAsFactors=FALSE))
     }
   }
@@ -1486,16 +1486,16 @@
     # cat("\n")
     # cat(colnames(pairs))
     # cat("\n")
-    # cat(pairs$target.genes.phos)
+    # cat(pairs$target.genes.PTM)
     pwid <- unlist(strsplit(pairs$pwid[i],split="\\|"))
     pwname <- unlist(strsplit(pairs$pwname[i],split="\\|"))
     tg <- unlist(strsplit(pairs$target.genes[i],split="\\|"))
-    pg <- unlist(strsplit(pairs$target.genes.phos[i],split="\\|"))
+    pg <- unlist(strsplit(pairs$target.genes.PTM[i],split="\\|"))
     spear <- unlist(strsplit(pairs$target.corr[i],split="\\|"))
     len <- as.numeric(unlist(strsplit(pairs$len[i],split="\\|")))
-    spear.phos <- NA
-    spear.phos <- unlist(strsplit(pairs$target.phos.corr[i],split="\\|"))
-    len.phos <- as.numeric(unlist(strsplit(pairs$len.phos[i],split="\\|")))
+    spear.PTM <- NA
+    spear.PTM <- unlist(strsplit(pairs$target.PTM.corr[i],split="\\|"))
+    len.PTM <- as.numeric(unlist(strsplit(pairs$len.PTM[i],split="\\|")))
     
     # estimate the LR correlation P-value
     if (pairs$corr[i] >= 0)
@@ -1518,24 +1518,24 @@
       # difficult to get as little as r-1 corr < rank.corr by chance!
       p.rt <- stats::pbinom(r-1, len[k], cdf(rank.corr, RT.par))
       #p.rp <- stats::pbinom(r-1, len[k], cdf(rank.corr, RP.par))
-      #create new df melant prot et phos
+      #create new df melant prot et PTM
       #learnparam(df)
       #p.rtp
       p.rtp <- 1
-      if(len.phos[k] > 0){
-        spears.phos <- as.numeric(strsplit(spear.phos[k],split=";")[[1]])
-        r <- min(max(1,trunc(rank.p*len.phos[k])),len.phos[k])
-        rank.corr.p <- spears.phos[r]
-        p.rtp <- stats::pbinom(r-1, len.phos[k], cdfp(rank.corr.p, RP.par))
+      if(len.PTM[k] > 0){
+        spears.PTM <- as.numeric(strsplit(spear.PTM[k],split=";")[[1]])
+        r <- min(max(1,trunc(rank.p*len.PTM[k])),len.PTM[k])
+        rank.corr.p <- spears.PTM[r]
+        p.rtp <- stats::pbinom(r-1, len.PTM[k], cdfp(rank.corr.p, RP.par))
       }
       #p.rtp[pg] <- p.rp[pg]
       
       res <- rbind(res,data.frame(pairs[i,c("L","R")],
                                   LR.corr=pairs[i,"corr"], pw.id=pwid[k],
-                                  pw.name=pwname[k], rank=r, len=len[k], len.phos=len.phos[k],
+                                  pw.name=pwname[k], rank=r, len=len[k], len.PTM=len.PTM[k],
                                   rank.corr=rank.corr, target.genes=tg[k],
-                                  target.corr=spear[k], target.genes.phos=pg[k],
-                                  target.phos.corr=spear.phos[k], pval=p.lr*p.rt*p.rtp,
+                                  target.corr=spear[k], target.genes.PTM=pg[k],
+                                  target.PTM.corr=spear.PTM[k], pval=p.lr*p.rt*p.rtp,
                                   pvalLR=p.lr, pvalRT=p.rt, pvalRP=p.rtp,
                                   stringsAsFactors=FALSE))
     }

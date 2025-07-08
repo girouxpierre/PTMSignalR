@@ -11,7 +11,7 @@
 #' @importFrom stats quantile
 #' @keywords internal
 .buildPermutationIndices <- function(ncounts, n.bins = 20) {
-  cat("\n .buildPermutationIndices - modelTrainPhos")
+  cat("\n .buildPermutationIndices - modelTrainPTM")
   
   rm <-  rowMeans(ncounts, na.rm = TRUE)
   breaks <- stats::quantile(rm, prob = (seq(0,n.bins))/n.bins)
@@ -54,7 +54,7 @@
 #'
 #' @keywords internal
 .buildPermutatedCountMatrix <- function(ncounts, pind) {
-  cat("\n .buildPermutatedCountMatrix - modelTrainPhos")
+  cat("\n .buildPermutatedCountMatrix - modelTrainPTM")
   symbols <- rownames(ncounts)
   rind <- .shufflePermutationIndices(pind)
   
@@ -544,13 +544,13 @@
 #'
 #' @importFrom foreach %do% %dopar%
 #' @keywords internal
-.getEmpiricalNull <- function(ncounts, phospho, n.rand = 5, min.cor = -1,
+.getEmpiricalNull <- function(ncounts, PTM, n.rand = 5, min.cor = -1,
                               with.complex = TRUE, max.pw.size = 200,
                               min.pw.size = 5, min.positive = 4) {
-  cat("\n .getEmpiricalNull - modelTrainPhos - debut")
+  cat("\n .getEmpiricalNull - modelTrainPTM - debut")
   pindices <- .buildPermutationIndices(ncounts)
   cat("\n ici")
-  r.ds <- prepareDataset(ncounts, phospho, normalize = FALSE, method = "ALREADY",
+  r.ds <- prepareDataset(ncounts, PTM, normalize = FALSE, method = "ALREADY",
                          min.LR.found = 0)
   #cat(r.ds)
   cat("\n n.rand = ")
@@ -569,14 +569,14 @@
     foreach::foreach(k = seq_len(n.rand), .combine = c) %do% {
       #cat("\n 3a")
       ncounts(r.ds) <- .buildPermutatedCountMatrix(ncounts, pindices)
-      cat("\n .getEmpiricalNull - modelTrainPhos - av .getCorrelatedLR")
+      cat("\n .getEmpiricalNull - modelTrainPTM - av .getCorrelatedLR")
       r.LR <- .getCorrelatedLR(r.ds, min.cor = min.cor)
-      cat("\n .getEmpiricalNull - modelTrainPhos - ap .getCorrelatedLR")
+      cat("\n .getEmpiricalNull - modelTrainPTM - ap .getCorrelatedLR")
       list(.checkReceptorSignaling(r.ds, r.LR,
                                    with.complex = with.complex, max.pw.size = max.pw.size,
                                    min.pw.size = min.pw.size, min.positive = min.positive)
       )
-      #cat("\n .getEmpiricalNull - modelTrainPhos - ap .checkReceptorSignaling")
+      #cat("\n .getEmpiricalNull - modelTrainPTM - ap .checkReceptorSignaling")
     }}
   
 }  # .getEmpiricalNull
@@ -615,13 +615,13 @@
 #'
 #' @importFrom foreach %do% %dopar%
 #' @keywords internal
-.getEmpiricalNullPhospho <- function(ncounts, phospho, n.rand = 5, min.cor = -1,
+.getEmpiricalNullPTM <- function(ncounts, PTM, n.rand = 5, min.cor = -1,
                                      with.complex = TRUE, max.pw.size = 200,
                                      min.pw.size = 5, min.positive = 4, single=FALSE, symPos=NULL, r.LR=NULL) {
-  cat("\n .getEmpiricalNullPhospho - modelTrainPhos - debut")
+  cat("\n .getEmpiricalNullPTM - modelTrainPTM - debut")
   cat("\n n.rand1: ",n.rand)
   n.rand <- 200
-  pindices <- .buildPermutationIndices(phospho, n.bins = 20)
+  pindices <- .buildPermutationIndices(PTM, n.bins = 20)
   cat("\n pindices: \n")
   cat(str(pindices))
   cat("\n n.rand2: ",n.rand)
@@ -631,32 +631,32 @@
   # }
   
   if(single)
-    r.ds <- prepareDataset(ncounts, phospho = phospho, normalize = FALSE, method = "ALREADY",
+    r.ds <- prepareDataset(ncounts, PTM = PTM, normalize = FALSE, method = "ALREADY",
                          min.LR.found = 0, symPos = symPos, single = single)
   else
-    r.ds <- prepareDataset(ncounts, phospho = phospho, normalize = FALSE, method = "ALREADY",
+    r.ds <- prepareDataset(ncounts, PTM = PTM, normalize = FALSE, method = "ALREADY",
                            min.LR.found = 0)
   cat("\n r.ds: \n")
   cat(str(r.ds))
   # cat("\n r.ds@symPos: \n")
   # cat((r.ds@symPos[1:5,]))
   cat("\n n.rand3: ",n.rand)
-  cat("\n .getEmpiricalNullPhospho - modelTrainPhos - ap prepDataset")
+  cat("\n .getEmpiricalNullPTM - modelTrainPTM - ap prepDataset")
   if (foreach::getDoParWorkers() > 1) #probleme ici
     foreach::foreach(k = seq_len(n.rand), .combine = c) %dopar% {
-      phospho(r.ds) <- .buildPermutatedCountMatrix(phospho, pindices)
+      PTM(r.ds) <- .buildPermutatedCountMatrix(PTM, pindices)
       r.LR <- .getCorrelatedLR(r.ds, min.cor = min.cor)
       cat("\n if: ",str(r.ds), "\n", unlist(r.LR))
       list(.checkReceptorSignaling(r.ds, r.LR,
                                    with.complex = with.complex, max.pw.size = max.pw.size,
-                                   min.pw.size = min.pw.size, min.positive = min.positive, infPhos = T)
+                                   min.pw.size = min.pw.size, min.positive = min.positive, infPTM = T)
       )
     }
   else{
     foreach::foreach(k = seq_len(n.rand), .combine = c) %do% {
       cat(k,"\n la ?")
-      phospho(r.ds) <- .buildPermutatedCountMatrix(phospho, pindices)
-      cat("\n r.ds@phospho: ", r.ds@phospho[1:5,1:2]) #?
+      PTM(r.ds) <- .buildPermutatedCountMatrix(PTM, pindices)
+      cat("\n r.ds@PTM: ", r.ds@PTM[1:5,1:2]) #?
       cat("\n r.ds: ", str(r.ds)) #?
       r.LR <- .getCorrelatedLR(r.ds, min.cor = min.cor)
       cat("\n else: ", unlist(r.LR)) #?
@@ -664,17 +664,17 @@
       #rds ok, rlr ok mais rn ncounts=ABC_123 reste ok, single true
       # cat(unlist(list(.checkReceptorSignaling(r.ds, r.LR,
       #                                  with.complex = with.complex, max.pw.size = max.pw.size,
-      #                                  min.pw.size = min.pw.size, min.positive = min.positive, infPhos = T)
+      #                                  min.pw.size = min.pw.size, min.positive = min.positive, infPTM = T)
       # )))
       cat("\n youhou \n")
       list(.checkReceptorSignaling(r.ds, r.LR,
                                    with.complex = with.complex, max.pw.size = max.pw.size,
-                                   min.pw.size = min.pw.size, min.positive = min.positive, infPhos = T)
+                                   min.pw.size = min.pw.size, min.positive = min.positive, infPTM = T)
       )
     }
     }
-  #cat("\n .getEmpiricalNullPhospho - modelTrainPhos - fin")
-}  # .getEmpiricalNullPhospho
+  #cat("\n .getEmpiricalNullPTM - modelTrainPTM - fin")
+}  # .getEmpiricalNullPTM
 
 
 #' Sampling of ligand-receptor correlation null distribution
@@ -699,15 +699,15 @@
 #'
 #' @importFrom foreach %do% %dopar%
 #' @keywords internal
-.getEmpiricalNullCorrLR <- function(ncounts, phospho, n.rand = 5, min.cor = -1) {
-  cat("\n .getEmpiricalNullCorrLR - modelTrainPhos - debut")
+.getEmpiricalNullCorrLR <- function(ncounts, PTM, n.rand = 5, min.cor = -1) {
+  cat("\n .getEmpiricalNullCorrLR - modelTrainPTM - debut")
   pindices <- .buildPermutationIndices(ncounts)
   #cat(pindices)
   #cat(head(ncounts))
-  #cat(head(phospho))
+  #cat(head(PTM))
   cat("\n n.rand =")
   cat(n.rand)
-  r.ds <- prepareDataset(ncounts, phospho=phospho, normalize = FALSE, method = "ALREADY",
+  r.ds <- prepareDataset(ncounts, PTM=PTM, normalize = FALSE, method = "ALREADY",
                          min.LR.found = 0)
   str(r.ds)
   if (foreach::getDoParWorkers() > 1){
@@ -719,9 +719,9 @@
     }}
   else
     foreach::foreach(k = seq_len(n.rand), .combine = c) %do% {
-      cat("\n .getEmpiricalNullCorrLR - modelTrainPhos - av .buildPermutatedCountMatrix")
+      cat("\n .getEmpiricalNullCorrLR - modelTrainPTM - av .buildPermutatedCountMatrix")
       ncounts(r.ds) <- .buildPermutatedCountMatrix(ncounts, pindices)
-      cat("\n .getEmpiricalNullCorrLR - modelTrainPhos - av .getCorrelatedLR")
+      cat("\n .getEmpiricalNullCorrLR - modelTrainPTM - av .getCorrelatedLR")
       list(.getCorrelatedLR(r.ds, min.cor = min.cor))
     }
   

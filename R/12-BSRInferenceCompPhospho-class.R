@@ -38,13 +38,13 @@ library(methods)
 #' @details This class is contains inferred LR interactions along with
 #' their statistical significance. Data representation supports subsequent
 #' reductions to pathways, etc. See reduction functions
-#' \code{"\link[=BSRInferenceCompPhospho-class]{reduceToBestPathway}"},
-#' \code{"\link[=BSRInferenceCompPhospho-class]{reduceToLigand}"},
-#' \code{"\link[=BSRInferenceCompPhospho-class]{reduceToReceptor}"} and
-#' \code{"\link[=BSRInferenceCompPhospho-class]{reduceToPathway}"}.
+#' \code{"\link[=BSRInferenceCompPTM-class]{reduceToBestPathway}"},
+#' \code{"\link[=BSRInferenceCompPTM-class]{reduceToLigand}"},
+#' \code{"\link[=BSRInferenceCompPTM-class]{reduceToReceptor}"} and
+#' \code{"\link[=BSRInferenceCompPTM-class]{reduceToPathway}"}.
 #' @export
 #' @examples
-#' print('BSRInferenceCompPhospho class')
+#' print('BSRInferenceCompPTM class')
 #' 
 #' # prepare data
 #' data(sdc,package='BulkSignalR')
@@ -64,7 +64,7 @@ library(methods)
 #' # infer ligand-receptor interactions from the comparison
 #' bsrinf <- initialInference(bsrdm.comp,max.pval=1,"random.example")
 #' 
-setClass("BSRInferenceCompPhospho",
+setClass("BSRInferenceCompPTM",
          contains="BSRInference",
          slots=c(cmp.name="character",
                  ptm.genes="list",
@@ -102,7 +102,7 @@ setClass("BSRInferenceCompPhospho",
            dpg.corr=list(c(-1,0,2))
          ))
 
-setValidity("BSRInferenceCompPhospho",
+setValidity("BSRInferenceCompPTM",
             function(object) {
               if (!is.character(object@cmp.name))
                 return("cmp.name is not of character type")
@@ -117,7 +117,7 @@ setValidity("BSRInferenceCompPhospho",
             }
 )
 
-setMethod("show", "BSRInferenceCompPhospho",
+setMethod("show", "BSRInferenceCompPTM",
           function(object) {
             callNextMethod()
             cat("Cluster comparison name:", object@cmp.name, "\n")
@@ -137,10 +137,10 @@ if (!isGeneric("cmpName")) {
 #' Comparison name accessor
 #'
 #' @name cmpName
-#' @aliases cmpName,BSRInferenceCompPhospho-method
-#' @param x BSRInferenceCompPhospho object
+#' @aliases cmpName,BSRInferenceCompPTM-method
+#' @param x BSRInferenceCompPTM object
 #' @export
-setMethod("cmpName", "BSRInferenceCompPhospho", function(x) x@cmp.name)
+setMethod("cmpName", "BSRInferenceCompPTM", function(x) x@cmp.name)
 
 if (!isGeneric("cmpName<-")) {
   if (is.function("cmpName<-"))
@@ -150,10 +150,10 @@ if (!isGeneric("cmpName<-")) {
   setGeneric("cmpName<-", fun)
 }
 #' Comparison name setter (internal use only)
-#' @param x BSRInferenceCompPhospho object
+#' @param x BSRInferenceCompPTM object
 #' @param value value to be set for bsrinf
 #' @keywords internal
-setMethod("cmpName<-", "BSRInferenceCompPhospho", function(x, value){
+setMethod("cmpName<-", "BSRInferenceCompPTM", function(x, value){
   x@cmp.name <- value
   methods::validObject(x)
   x
@@ -170,10 +170,10 @@ if (!isGeneric("tgPval")) {
 #' Target gene P-values accessor
 #'
 #' @name tgPval
-#' @aliases tgPval,BSRInferenceCompPhospho-method
-#' @param x BSRInferenceCompPhospho object
+#' @aliases tgPval,BSRInferenceCompPTM-method
+#' @param x BSRInferenceCompPTM object
 #' @export
-setMethod("tgPval", "BSRInferenceCompPhospho", function(x) x@tg.pval)
+setMethod("tgPval", "BSRInferenceCompPTM", function(x) x@tg.pval)
 
 if (!isGeneric("tgPval<-")) {
   if (is.function("tgPval<-"))
@@ -183,10 +183,10 @@ if (!isGeneric("tgPval<-")) {
   setGeneric("tgPval<-", fun)
 }
 #' Target gene P-values setter (internal use only)
-#' @param x BSRInferenceCompPhospho object
+#' @param x BSRInferenceCompPTM object
 #' @param value value to be set for bsrinf
 #' @keywords internal
-setMethod("tgPval<-", "BSRInferenceCompPhospho", function(x, value){
+setMethod("tgPval<-", "BSRInferenceCompPTM", function(x, value){
   x@tg.pval <- value
   methods::validObject(x)
   x
@@ -203,10 +203,10 @@ if (!isGeneric("tgLogFC")) {
 #' Target gene logFC accessor
 #'
 #' @name tgLogFC
-#' @aliases tgLogFC,BSRInferenceCompPhospho-method
-#' @param x BSRInferenceCompPhospho object
+#' @aliases tgLogFC,BSRInferenceCompPTM-method
+#' @param x BSRInferenceCompPTM object
 #' @export
-setMethod("tgLogFC", "BSRInferenceCompPhospho", function(x) x@tg.logFC)
+setMethod("tgLogFC", "BSRInferenceCompPTM", function(x) x@tg.logFC)
 
 if (!isGeneric("tgLogFC<-")) {
   if (is.function("tgLogFC<-"))
@@ -216,10 +216,10 @@ if (!isGeneric("tgLogFC<-")) {
   setGeneric("tgLogFC<-", fun)
 }
 #' Target gene logFC setter (internal use only)
-#' @param x BSRInferenceCompPhospho object
+#' @param x BSRInferenceCompPTM object
 #' @param value value to be set for bsrinf
 #' @keywords internal
-setMethod("tgLogFC<-", "BSRInferenceCompPhospho", function(x, value){
+setMethod("tgLogFC<-", "BSRInferenceCompPTM", function(x, value){
   x@tg.logFC <- value
   methods::validObject(x)
   x
@@ -236,10 +236,10 @@ if (!isGeneric("pg.pval")) {
 #' Target gene P-values accessor
 #'
 #' @name pg.pval
-#' @aliases pg.pval,BSRInferenceCompPhospho-method
-#' @param x BSRInferenceCompPhospho object
+#' @aliases pg.pval,BSRInferenceCompPTM-method
+#' @param x BSRInferenceCompPTM object
 #' @export
-setMethod("pg.pval", "BSRInferenceCompPhospho", function(x) x@pg.pval)
+setMethod("pg.pval", "BSRInferenceCompPTM", function(x) x@pg.pval)
 
 if (!isGeneric("pg.pval<-")) {
   if (is.function("pg.pval<-"))
@@ -249,10 +249,10 @@ if (!isGeneric("pg.pval<-")) {
   setGeneric("pg.pval<-", fun)
 }
 #' Target gene P-values setter (internal use only)
-#' @param x BSRInferenceCompPhospho object
+#' @param x BSRInferenceCompPTM object
 #' @param value value to be set for bsrinf
 #' @keywords internal
-setMethod("pg.pval<-", "BSRInferenceCompPhospho", function(x, value){
+setMethod("pg.pval<-", "BSRInferenceCompPTM", function(x, value){
   x@pg.pval <- value
   methods::validObject(x)
   x
@@ -269,10 +269,10 @@ if (!isGeneric("pg.logFC")) {
 #' Target gene logFC accessor
 #'
 #' @name pg.logFC
-#' @aliases pg.logFC,BSRInferenceCompPhospho-method
-#' @param x BSRInferenceCompPhospho object
+#' @aliases pg.logFC,BSRInferenceCompPTM-method
+#' @param x BSRInferenceCompPTM object
 #' @export
-setMethod("pg.logFC", "BSRInferenceCompPhospho", function(x) x@pg.logFC)
+setMethod("pg.logFC", "BSRInferenceCompPTM", function(x) x@pg.logFC)
 
 if (!isGeneric("pg.logFC<-")) {
   if (is.function("pg.logFC<-"))
@@ -282,10 +282,10 @@ if (!isGeneric("pg.logFC<-")) {
   setGeneric("pg.logFC<-", fun)
 }
 #' Target gene logFC setter (internal use only)
-#' @param x BSRInferenceCompPhospho object
+#' @param x BSRInferenceCompPTM object
 #' @param value value to be set for bsrinf
 #' @keywords internal
-setMethod("pg.logFC<-", "BSRInferenceCompPhospho", function(x, value){
+setMethod("pg.logFC<-", "BSRInferenceCompPTM", function(x, value){
   x@pg.logFC <- value
   methods::validObject(x)
   x
@@ -303,10 +303,10 @@ if (!isGeneric("ptmg.pval")) {
 #' Target gene P-values accessor
 #'
 #' @name ptmg.pval
-#' @aliases ptmg.pval,BSRInferenceCompPhospho-method
-#' @param x BSRInferenceCompPhospho object
+#' @aliases ptmg.pval,BSRInferenceCompPTM-method
+#' @param x BSRInferenceCompPTM object
 #' @export
-setMethod("ptmg.pval", "BSRInferenceCompPhospho", function(x) x@ptmg.pval)
+setMethod("ptmg.pval", "BSRInferenceCompPTM", function(x) x@ptmg.pval)
 
 if (!isGeneric("ptmg.pval<-")) {
   if (is.function("ptmg.pval<-"))
@@ -316,10 +316,10 @@ if (!isGeneric("ptmg.pval<-")) {
   setGeneric("ptmg.pval<-", fun)
 }
 #' Target gene P-values setter (internal use only)
-#' @param x BSRInferenceCompPhospho object
+#' @param x BSRInferenceCompPTM object
 #' @param value value to be set for bsrinf
 #' @keywords internal
-setMethod("ptmg.pval<-", "BSRInferenceCompPhospho", function(x, value){
+setMethod("ptmg.pval<-", "BSRInferenceCompPTM", function(x, value){
   x@ptmg.pval <- value
   methods::validObject(x)
   x
@@ -336,10 +336,10 @@ if (!isGeneric("ptmg.logFC")) {
 #' Target gene logFC accessor
 #'
 #' @name ptmg.logFC
-#' @aliases ptmg.logFC,BSRInferenceCompPhospho-method
-#' @param x BSRInferenceCompPhospho object
+#' @aliases ptmg.logFC,BSRInferenceCompPTM-method
+#' @param x BSRInferenceCompPTM object
 #' @export
-setMethod("ptmg.logFC", "BSRInferenceCompPhospho", function(x) x@ptmg.logFC)
+setMethod("ptmg.logFC", "BSRInferenceCompPTM", function(x) x@ptmg.logFC)
 
 if (!isGeneric("ptmg.logFC<-")) {
   if (is.function("ptmg.logFC<-"))
@@ -349,10 +349,10 @@ if (!isGeneric("ptmg.logFC<-")) {
   setGeneric("ptmg.logFC<-", fun)
 }
 #' Target gene logFC setter (internal use only)
-#' @param x BSRInferenceCompPhospho object
+#' @param x BSRInferenceCompPTM object
 #' @param value value to be set for bsrinf
 #' @keywords internal
-setMethod("ptmg.logFC<-", "BSRInferenceCompPhospho", function(x, value){
+setMethod("ptmg.logFC<-", "BSRInferenceCompPTM", function(x, value){
   x@ptmg.logFC <- value
   methods::validObject(x)
   x
@@ -370,10 +370,10 @@ if (!isGeneric("dpg.pval")) {
 #' Target gene P-values accessor
 #'
 #' @name dpg.pval
-#' @aliases dpg.pval,BSRInferenceCompPhospho-method
-#' @param x BSRInferenceCompPhospho object
+#' @aliases dpg.pval,BSRInferenceCompPTM-method
+#' @param x BSRInferenceCompPTM object
 #' @export
-setMethod("dpg.pval", "BSRInferenceCompPhospho", function(x) x@dpg.pval)
+setMethod("dpg.pval", "BSRInferenceCompPTM", function(x) x@dpg.pval)
 
 if (!isGeneric("dpg.pval<-")) {
   if (is.function("pdgPval<-"))
@@ -383,10 +383,10 @@ if (!isGeneric("dpg.pval<-")) {
   setGeneric("dpg.pval<-", fun)
 }
 #' Target gene P-values setter (internal use only)
-#' @param x BSRInferenceCompPhospho object
+#' @param x BSRInferenceCompPTM object
 #' @param value value to be set for bsrinf
 #' @keywords internal
-setMethod("dpg.pval<-", "BSRInferenceCompPhospho", function(x, value){
+setMethod("dpg.pval<-", "BSRInferenceCompPTM", function(x, value){
   x@dpg.pval <- value
   methods::validObject(x)
   x
@@ -403,10 +403,10 @@ if (!isGeneric("dpg.logFC")) {
 #' Target gene logFC accessor
 #'
 #' @name dpg.logFC
-#' @aliases dpg.logFC,BSRInferenceCompPhospho-method
-#' @param x BSRInferenceCompPhospho object
+#' @aliases dpg.logFC,BSRInferenceCompPTM-method
+#' @param x BSRInferenceCompPTM object
 #' @export
-setMethod("dpg.logFC", "BSRInferenceCompPhospho", function(x) x@dpg.logFC)
+setMethod("dpg.logFC", "BSRInferenceCompPTM", function(x) x@dpg.logFC)
 
 if (!isGeneric("dpg.logFC<-")) {
   if (is.function("dpg.logFC<-"))
@@ -416,10 +416,10 @@ if (!isGeneric("dpg.logFC<-")) {
   setGeneric("dpg.logFC<-", fun)
 }
 #' Target gene logFC setter (internal use only)
-#' @param x BSRInferenceCompPhospho object
+#' @param x BSRInferenceCompPTM object
 #' @param value value to be set for bsrinf
 #' @keywords internal
-setMethod("dpg.logFC<-", "BSRInferenceCompPhospho", function(x, value){
+setMethod("dpg.logFC<-", "BSRInferenceCompPTM", function(x, value){
   x@dpg.logFC <- value
   methods::validObject(x)
   x
@@ -434,13 +434,13 @@ if (!isGeneric("ptm.genes")) {
     fun <- function(x) standardGeneric("ptm.genes")
   setGeneric("ptm.genes", fun)
 }
-#' Phospho genes accessor
+#' PTM genes accessor
 #'
 #' @name ptm.genes
-#' @aliases ptm.genes,BSRInferenceCompPhospho-method
+#' @aliases ptm.genes,BSRInferenceCompPTM-method
 #' @param x BSRInferance object
 #' @export
-setMethod("ptm.genes", "BSRInferenceCompPhospho", function(x) x@ptm.genes)
+setMethod("ptm.genes", "BSRInferenceCompPTM", function(x) x@ptm.genes)
 
 if (!isGeneric("ptm.genes<-")) {
   if (is.function("ptm.genes<-"))
@@ -449,11 +449,11 @@ if (!isGeneric("ptm.genes<-")) {
     fun <- function(x,value) standardGeneric("ptm.genes<-")
   setGeneric("ptm.genes<-", fun)
 }
-#' Phospho genes setter (internal use only)
+#' PTM genes setter (internal use only)
 #' @param x BSRInferance object
-#' @param value value to be set BSRInferenceCompPhospho
+#' @param value value to be set BSRInferenceCompPTM
 #' @keywords internal 
-setMethod("ptm.genes<-", "BSRInferenceCompPhospho", function(x, value){
+setMethod("ptm.genes<-", "BSRInferenceCompPTM", function(x, value){
   x@ptm.genes <- value
   methods::validObject(x)
   x
@@ -469,10 +469,10 @@ if (!isGeneric("ptmg.corr")) {
 #' Target gene correlations accessor
 #'
 #' @name ptmg.corr
-#' @aliases ptmg.corr,BSRInferenceCompPhospho-method
-#' @param x BSRInferenceCompPhospho object
+#' @aliases ptmg.corr,BSRInferenceCompPTM-method
+#' @param x BSRInferenceCompPTM object
 #' @export
-setMethod("ptmg.corr", "BSRInferenceCompPhospho", function(x) x@ptmg.corr)
+setMethod("ptmg.corr", "BSRInferenceCompPTM", function(x) x@ptmg.corr)
 
 if (!isGeneric("ptmg.corr<-")) {
   if (is.function("ptmg.corr<-"))
@@ -481,11 +481,11 @@ if (!isGeneric("ptmg.corr<-")) {
     fun <- function(x,value) standardGeneric("ptmg.corr<-")
   setGeneric("ptmg.corr<-", fun)
 }
-#' Phospho gene correlations setter (internal use only)
-#' @param x BSRInferenceCompPhospho object
+#' PTM gene correlations setter (internal use only)
+#' @param x BSRInferenceCompPTM object
 #' @param value value to be set for bsrinf
 #' @keywords internal
-setMethod("ptmg.corr<-", "BSRInferenceCompPhospho", function(x, value){
+setMethod("ptmg.corr<-", "BSRInferenceCompPTM", function(x, value){
   x@ptmg.corr <- value
   methods::validObject(x)
   x
@@ -499,13 +499,13 @@ if (!isGeneric("p.genes")) {
     fun <- function(x) standardGeneric("p.genes")
   setGeneric("p.genes", fun)
 }
-#' Phospho genes accessor
+#' PTM genes accessor
 #'
 #' @name p.genes
-#' @aliases p.genes,BSRInferenceCompPhospho-method
-#' @param x BSRInferenceCompPhospho object
+#' @aliases p.genes,BSRInferenceCompPTM-method
+#' @param x BSRInferenceCompPTM object
 #' @export
-setMethod("p.genes", "BSRInferenceCompPhospho", function(x) x@p.genes)
+setMethod("p.genes", "BSRInferenceCompPTM", function(x) x@p.genes)
 
 if (!isGeneric("p.genes<-")) {
   if (is.function("p.genes<-"))
@@ -514,11 +514,11 @@ if (!isGeneric("p.genes<-")) {
     fun <- function(x,value) standardGeneric("p.genes<-")
   setGeneric("p.genes<-", fun)
 }
-#' Phospho genes setter (internal use only)
-#' @param x BSRInferenceCompPhospho object
-#' @param value value to be set BSRInferenceCompPhospho
+#' PTM genes setter (internal use only)
+#' @param x BSRInferenceCompPTM object
+#' @param value value to be set BSRInferenceCompPTM
 #' @keywords internal 
-setMethod("p.genes<-", "BSRInferenceCompPhospho", function(x, value){
+setMethod("p.genes<-", "BSRInferenceCompPTM", function(x, value){
   x@p.genes <- value
   methods::validObject(x)
   x
@@ -535,10 +535,10 @@ if (!isGeneric("pg.corr")) {
 #' Target gene correlations accessor
 #'
 #' @name pg.corr
-#' @aliases pg.corr,BSRInferenceCompPhospho-method
-#' @param x BSRInferenceCompPhospho object
+#' @aliases pg.corr,BSRInferenceCompPTM-method
+#' @param x BSRInferenceCompPTM object
 #' @export
-setMethod("pg.corr", "BSRInferenceCompPhospho", function(x) x@pg.corr)
+setMethod("pg.corr", "BSRInferenceCompPTM", function(x) x@pg.corr)
 
 if (!isGeneric("pg.corr<-")) {
   if (is.function("pg.corr<-"))
@@ -547,11 +547,11 @@ if (!isGeneric("pg.corr<-")) {
     fun <- function(x,value) standardGeneric("pg.corr<-")
   setGeneric("pg.corr<-", fun)
 }
-#' Phospho gene correlations setter (internal use only)
-#' @param x BSRInferenceCompPhospho object
+#' PTM gene correlations setter (internal use only)
+#' @param x BSRInferenceCompPTM object
 #' @param value value to be set for bsrinf
 #' @keywords internal
-setMethod("pg.corr<-", "BSRInferenceCompPhospho", function(x, value){
+setMethod("pg.corr<-", "BSRInferenceCompPTM", function(x, value){
   x@pg.corr <- value
   methods::validObject(x)
   x
@@ -565,13 +565,13 @@ if (!isGeneric("dp.genes")) {
     fun <- function(x) standardGeneric("dp.genes")
   setGeneric("dp.genes", fun)
 }
-#' Phospho genes accessor
+#' PTM genes accessor
 #'
 #' @name dp.genes
-#' @aliases dp.genes,BSRInferenceCompPhospho-method
-#' @param x BSRInferenceCompPhospho object
+#' @aliases dp.genes,BSRInferenceCompPTM-method
+#' @param x BSRInferenceCompPTM object
 #' @export
-setMethod("dp.genes", "BSRInferenceCompPhospho", function(x) x@dp.genes)
+setMethod("dp.genes", "BSRInferenceCompPTM", function(x) x@dp.genes)
 
 if (!isGeneric("dp.genes<-")) {
   if (is.function("dp.genes<-"))
@@ -580,11 +580,11 @@ if (!isGeneric("dp.genes<-")) {
     fun <- function(x,value) standardGeneric("dp.genes<-")
   setGeneric("dp.genes<-", fun)
 }
-#' Phospho genes setter (internal use only)
-#' @param x BSRInferenceCompPhospho object
-#' @param value value to be set BSRInferenceCompPhospho
+#' PTM genes setter (internal use only)
+#' @param x BSRInferenceCompPTM object
+#' @param value value to be set BSRInferenceCompPTM
 #' @keywords internal 
-setMethod("dp.genes<-", "BSRInferenceCompPhospho", function(x, value){
+setMethod("dp.genes<-", "BSRInferenceCompPTM", function(x, value){
   x@dp.genes <- value
   methods::validObject(x)
   x
@@ -600,10 +600,10 @@ if (!isGeneric("dpg.corr")) {
 #' Target gene correlations accessor
 #'
 #' @name dpg.corr
-#' @aliases dpg.corr,BSRInferenceCompPhospho-method
-#' @param x BSRInferenceCompPhospho object
+#' @aliases dpg.corr,BSRInferenceCompPTM-method
+#' @param x BSRInferenceCompPTM object
 #' @export
-setMethod("dpg.corr", "BSRInferenceCompPhospho", function(x) x@dpg.corr)
+setMethod("dpg.corr", "BSRInferenceCompPTM", function(x) x@dpg.corr)
 
 if (!isGeneric("dpg.corr<-")) {
   if (is.function("dpg.corr<-"))
@@ -612,11 +612,11 @@ if (!isGeneric("dpg.corr<-")) {
     fun <- function(x,value) standardGeneric("dpg.corr<-")
   setGeneric("dpg.corr<-", fun)
 }
-#' Phospho gene correlations setter (internal use only)
-#' @param x BSRInferenceCompPhospho object
+#' PTM gene correlations setter (internal use only)
+#' @param x BSRInferenceCompPTM object
 #' @param value value to be set for bsrinf
 #' @keywords internal
-setMethod("dpg.corr<-", "BSRInferenceCompPhospho", function(x, value){
+setMethod("dpg.corr<-", "BSRInferenceCompPTM", function(x, value){
   x@dpg.corr <- value
   methods::validObject(x)
   x
@@ -633,11 +633,11 @@ if (!isGeneric("rescoreInference")) {
 }
 #' Inference re-scoring
 #'
-#' A method to re-score an existing BSRInferenceCompPhospho object
+#' A method to re-score an existing BSRInferenceCompPTM object
 #' (P- and Q-value estimations).
 #'
 #' @name rescoreInference
-#' @aliases rescoreInference,BSRInferenceCompPhospho-method
+#' @aliases rescoreInference,BSRInferenceCompPTM-method
 #'
 #' @param obj BSRInferecenceComp object.
 #' @param rank.p        A number between 0 and 1 defining the rank of the last
@@ -645,10 +645,10 @@ if (!isGeneric("rescoreInference")) {
 #' @param fdr.proc      The procedure for adjusting P-values according to
 #'   \code{\link[multtest]{mt.rawp2adjp}}.
 #'
-#' @details A BSRInferenceCompPhospho object should be created by calling 
+#' @details A BSRInferenceCompPTM object should be created by calling 
 #' \code{"\link[=BSRClusterComp-class]{initialInference}"}
 #'
-#' @return A BSRInferenceCompPhospho object.
+#' @return A BSRInferenceCompPTM object.
 #'
 #' @export
 #' @examples
@@ -675,7 +675,7 @@ if (!isGeneric("rescoreInference")) {
 #' # rescore
 #' bsrinf.less <- rescoreInference(bsrinf, param=param(bsrdm.comp), rank.p=0.75)
 #'
-setMethod("rescoreInference", "BSRInferenceCompPhospho", function(obj, param, rank.p=0.55,
+setMethod("rescoreInference", "BSRInferenceCompPTM", function(obj, param, rank.p=0.55,
             fdr.proc=c("BH", "Bonferroni", "Holm",
                        "Hochberg", "SidakSS", "SidakSD", "BY", "ABH", "TSBH")) {
   
@@ -683,7 +683,7 @@ setMethod("rescoreInference", "BSRInferenceCompPhospho", function(obj, param, ra
     stop("rank.p must lie in [0;1]")
   fdr.proc <- match.arg(fdr.proc)
   
-  # extract the necessary data from the BSRInferenceCompPhospho object
+  # extract the necessary data from the BSRInferenceCompPTM object
   pairs <- LRinter(obj)
   t.genes <- tGenes(obj)
   tg.pval <- tgPval(obj)
@@ -752,11 +752,11 @@ if (!isGeneric("reduceToBestPathway")) {
 #' Keep one pathway per ligand-receptor pair
 #'
 #' @name reduceToBestPathway
-#' @aliases reduceToBestPathway,BSRInferenceCompPhospho-method
+#' @aliases reduceToBestPathway,BSRInferenceCompPTM-method
 #'
-#' @param obj BSRInferenceCompPhospho object
+#' @param obj BSRInferenceCompPTM object
 #'
-#' @return A BSRInferenceCompPhospho object reduced to only report one pathway per
+#' @return A BSRInferenceCompPTM object reduced to only report one pathway per
 #' ligand-receptor pair. The pathway with the
 #' smallest P-value is selected.
 #'
@@ -791,7 +791,7 @@ if (!isGeneric("reduceToBestPathway")) {
 #' bsrinf.redBP  <- reduceToBestPathway(bsrinf)
 #'
 #' @importFrom rlang .data
-setMethod("reduceToBestPathway", "BSRInferenceCompPhospho", function(obj) {
+setMethod("reduceToBestPathway", "BSRInferenceCompPTM", function(obj) {
   
   # Here we access the object slots directly as this procedure
   # is dependent of actual data representation
@@ -850,9 +850,9 @@ if (!isGeneric("reduceToReceptor")) {
 #' Simplifies a ligand-receptor table to focus on the receptors.
 #'
 #' @name reduceToReceptor
-#' @aliases reduceToReceptor,BSRInferenceCompPhospho-method
+#' @aliases reduceToReceptor,BSRInferenceCompPTM-method
 #'
-#' @return BSRInferenceCompPhospho object reduced to one row per receptor.
+#' @return BSRInferenceCompPTM object reduced to one row per receptor.
 #' All the ligands are combined in a
 #' semi-colon-separated list surrounded by curly brackets in the tabular
 #' slot \code{LRinter}, and in vectors in the \code{ligands} (list) slot.
@@ -886,7 +886,7 @@ if (!isGeneric("reduceToReceptor")) {
 #' bsrinf.redR  <- reduceToReceptor(bsrinf)  
 #'
 #' @importFrom rlang .data
-setMethod("reduceToReceptor", "BSRInferenceCompPhospho", function(obj){
+setMethod("reduceToReceptor", "BSRInferenceCompPTM", function(obj){
   
   # Here we access the object slots directly as this procedure
   # is dependent of actual data representation
@@ -946,16 +946,16 @@ if (!isGeneric("reduceToLigand")) {
 #' Simplifies a ligand-receptor table to focus on the ligands.
 #'
 #' @name reduceToLigand
-#' @aliases reduceToLigand,BSRInferenceCompPhospho-method
+#' @aliases reduceToLigand,BSRInferenceCompPTM-method
 #'
-#' @return A BSRInferenceCompPhospho object but reduced to one row per ligand.
+#' @return A BSRInferenceCompPTM object but reduced to one row per ligand.
 #' All the receptors are combined in a
 #' semi-colon-separated list surrounded by curly brackets in the tabular
 #' slot \code{LRinter}, and in vectors in the \code{ligands} (list) slot.
 #'
 #' The reported P-value and target genes are those from the pathway with
 #' the smallest P-value.
-#' @param obj BSRInferenceCompPhospho object
+#' @param obj BSRInferenceCompPTM object
 #' @export
 #' @examples
 #' print('reduceToLigand')
@@ -982,7 +982,7 @@ if (!isGeneric("reduceToLigand")) {
 #' bsrinf.redL  <- reduceToLigand(bsrinf)  
 #'
 #' @importFrom rlang .data
-setMethod("reduceToLigand", "BSRInferenceCompPhospho", function(obj){
+setMethod("reduceToLigand", "BSRInferenceCompPTM", function(obj){
   
   # Here we access the object slots directly as this procedure
   # is dependent of actual representation
@@ -1043,9 +1043,9 @@ if (!isGeneric("reduceToPathway")) {
 #' the pathways.
 #'
 #' @name reduceToPathway
-#' @aliases reduceToPathway,BSRInferenceCompPhospho-method
+#' @aliases reduceToPathway,BSRInferenceCompPTM-method
 #'
-#' @return A BSRInferenceCompPhospho object reduced to only report one row per pathway.
+#' @return A BSRInferenceCompPTM object reduced to only report one row per pathway.
 #' The information of which ligand interacted with which receptor is lost as
 #' all the ligands and all the receptors forming pairs related to a certain
 #' pathway are combined.
@@ -1057,7 +1057,7 @@ if (!isGeneric("reduceToPathway")) {
 #' while the list representation slots (\code{ligands} and
 #' \code{receptors}) are update accordingly.
 #'
-#' @param obj BSRInferenceCompPhospho object
+#' @param obj BSRInferenceCompPTM object
 #' @export
 #' @examples
 #' print('reduceToPathway')
@@ -1083,7 +1083,7 @@ if (!isGeneric("reduceToPathway")) {
 #' # reduction
 #' bsrinf.redP  <- reduceToPathway(bsrinf)  
 #' @importFrom rlang .data
-setMethod("reduceToPathway", "BSRInferenceCompPhospho", function(obj){
+setMethod("reduceToPathway", "BSRInferenceCompPTM", function(obj){
   
   # Here we access the object slots directly as this procedure
   # is dependent of actual representation
@@ -1148,12 +1148,12 @@ if (!isGeneric("getLRGeneSignatures")) {
 #' Obtains gene signatures reflecting ligand-receptor as well as
 #' receptor downstream activity to
 #' score ligand-receptor pairs across samples subsequently with
-#' \code{"\link[=BSRInferenceCompPhospho-class]{scoreLRGeneSignatures}"}
+#' \code{"\link[=BSRInferenceCompPTM-class]{scoreLRGeneSignatures}"}
 #'
 #' @name getLRGeneSignatures
-#' @aliases getLRGeneSignatures,BSRInferenceCompPhospho-method
+#' @aliases getLRGeneSignatures,BSRInferenceCompPTM-method
 #'
-#' @param obj    BSRInferenceCompPhospho object.
+#' @param obj    BSRInferenceCompPTM object.
 #' @param pval.thres    P-value threshold.
 #' @param qval.thres    Q-value threshold.
 #' @param with.pw.id    A logical indicating whether the ID of a pathway
@@ -1191,7 +1191,7 @@ if (!isGeneric("getLRGeneSignatures")) {
 #'
 #' @importFrom foreach %do% %dopar%
 #' @importFrom methods new
-setMethod("getLRGeneSignatures", "BSRInferenceCompPhospho", function(obj,
+setMethod("getLRGeneSignatures", "BSRInferenceCompPTM", function(obj,
                                                           pval.thres=NULL, qval.thres=NULL, with.pw.id=FALSE){
   
   if (is.null(pval.thres) && is.null(qval.thres))
