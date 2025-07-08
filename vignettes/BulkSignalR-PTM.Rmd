@@ -2,28 +2,28 @@
 title: "`BulkSignalR extension` : </br> Integration of post-translational modifications for inference of ligand-receptor interactions"
 author:
   - name: Pierre Giroux
-affiliation:
-  - Institut de Recherche en Cancérologie de Montpellier, Inserm, Montpellier, France 
-email: pierre.giroux@inserm.fr
-- name: Jacques Colinge
-affiliation:
-  - Institut de Recherche en Cancérologie de Montpellier, Inserm, Montpellier, France 
-email: jacques.colinge@inserm.fr
+    affiliation:
+    - Institut de Recherche en Cancérologie de Montpellier, Inserm, Montpellier, France 
+    email: pierre.giroux@inserm.fr
+  - name: Jacques Colinge
+    affiliation:
+    - Institut de Recherche en Cancérologie de Montpellier, Inserm, Montpellier, France 
+    email: jacques.colinge@inserm.fr
 date: "`r format(Sys.Date(), '%m/%d/%Y')`"
 output: 
   rmarkdown::html_vignette:
-  self_contained: true
-toc: true
-toc_depth: 4
-highlight: pygments
-fig_height: 3
-fig_width: 3
-fig_caption: no
-code_folding: show
+      self_contained: true
+      toc: true
+      toc_depth: 4
+      highlight: pygments
+      fig_height: 3
+      fig_width: 3
+      fig_caption: no
+      code_folding: show
 vignette: >
   %\VignetteIndexEntry{BulkSignalR-PTM}
-%\VignetteEngine{knitr::rmarkdown}
-%\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
   
 ```{r, include = FALSE}
