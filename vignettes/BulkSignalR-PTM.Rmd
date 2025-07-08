@@ -1,5 +1,5 @@
 ---
-  title: "`BulkSignalR extension` : </br> Integration of post-translational modifications for inference of ligand-receptor interactions"
+title: "`BulkSignalR extension` : </br> Integration of post-translational modifications for inference of ligand-receptor interactions"
 author:
   - name: Pierre Giroux
 affiliation:
