@@ -659,9 +659,9 @@ setMethod("initialInference", "BSRDataModelCompPTM", function(obj, cmp.name, ran
   ligands <- strsplit(inter$L, ";")
   receptors <- strsplit(inter$R, ";")
   tg <- strsplit(inter$target.genes, ";")
-  ptmg <- strsplit(inter$ptm.genes, ";")
-  pg <- strsplit(inter$PTM.genes, ";")
-  dpg <- strsplit(inter$dePTM.genes, ";")
+  ptmg <- strsplit(inter$PTM.genes, ";")
+  pg <- strsplit(inter$addPTM.genes, ";")
+  dpg <- strsplit(inter$rmPTM.genes, ";")
   tgpval <- lapply(strsplit(inter$target.pval, ";"),
                    function(x) as.numeric(x))
   
