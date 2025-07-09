@@ -39,7 +39,7 @@ Imports:
     ComplexHeatmap (>= 2.0.0),
     stats,
     scales,
-    tidyvrse,
+    tidyverse,
     RANN
 Suggests: 
     knitr,
