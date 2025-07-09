@@ -61,12 +61,14 @@ of patients.
 ```{r diffmode,eval=FALSE}
 library(PTMSignalR)
 
-data(ccrcc,package='PTMSignalR')
+data(ccrcc_prot,package='PTMSignalR')
+data(ccrcc_phos,package='PTMSignalR')
+data(ccrcc_clinical,package='PTMSignalR')
 
 protResp <- clinical[clinical$Response=="Responder",2]
 protNoResp <- clinical[clinical$Response=="Non-Responder",2]
-phosResp <- clinicalPhos[clinicalPhos$Response=="Responder",2]
-phosNoResp <- clinicalPhos[clinicalPhos$Response=="Non-Responder",2]
+phosResp <- clinical[clinical$Response=="Responder",2]
+phosNoResp <- clinical[clinical$Response=="Non-Responder",2]
 
 # Normalization by protein expression 
 dfPhosNorm <- as.data.frame(dfPhos[dfPhos$Symbol %in% rownames(dfProt),])
@@ -98,25 +100,25 @@ FCPh <- apply(dfPhosNorm,1,function(x) median(x[unlist(phosResp)],
 resp.tablePh <- data.frame(pval=diff.respPh,logFC=FCPh)
 rownames(resp.tablePh) <- rownames(dfPhosNorm)
 
-bsrdmResp <- prepareDataset(counts = dfProt, phospho = dfPhos_complete, 
+bsrdmResp <- prepareDataset(counts = dfProt, PTM = dfPhos_complete, 
                     single = T, symbolPh.col = 1, pos.col = 2, normalize = T, method="TC",min.count=0,min.LR.found=10)
-bsrdm.compResp <- as.BSRDataModelCompPhospho(bsrdmResp)
+bsrdm.compResp <- as.BSRDataModelCompPTM(bsrdmResp)
 
 # indices resp vs non resp
-indPhosResp <- which(colnames(dfPhos) %in% unlist(phosResp))
-indPhosNoResp <- which(colnames(dfPhos) %in% unlist(phosNoResp))
+indPhosResp <- which(colnames(bsrdm.compResp@PTM) %in% unlist(phosResp))
+indPhosNoResp <- which(colnames(bsrdm.compResp@PTM) %in% unlist(phosNoResp))
 
 # define the comparison
 bsrccResp <- defineClusterComp(bsrdm.compResp, indPhosResp, indPhosNoResp, 
                                resp.table, resp.tablePh)
 bsrccResp
 
-bsrdm.compResp <- addClusterCompPhos(bsrdm.compResp,bsrccResp,"resp.versus.all")
+bsrdm.compResp <- addClusterCompPTM(bsrdm.compResp,bsrccResp,"resp.versus.all")
 bsrdm.compResp
 
 # Infer ligand-receptor interactions from the comparison
 bsrinf.comp.resp <- initialInference(bsrdm.compResp,"resp.versus.all",
-                  min.logFC=minFC,max.pval = 1,neg.receptors = T,rank.p = 0.75,
+                  min.logFC=0.001,max.pval = 1,neg.receptors = T,rank.p = 0.75,
                   min.pw.size = 2,min.positive = 2, reference="REACTOME")
 bsrinf.comp.resp
 resp.inter <- LRinter(bsrinf.comp.resp)
@@ -133,11 +135,11 @@ have been extented :
   \
 
 
-* **BSR-DataModelCompPTM**, denoted `bsrdm.comp.ptm` is an extension from 
+* **BSR-DataModelCompPTM**, denoted `bsrdm.comp.PTM` is an extension from 
 **BSR-DataModelComp**, previously denoted `bsrdm.comp`  
-* **BSR-InferenceCompPTM**, denoted `bsrinf.comp.ptm` is an extension from 
+* **BSR-InferenceCompPTM**, denoted `bsrinf.comp.PTM` is an extension from 
 **BSR-InferenceComp**, previously denoted `bsrinf.comp` 
-* **BSR-ClusterCompPTM**, denoted `bsrcc.ptm` is an extension from 
+* **BSR-ClusterCompPTM**, denoted `bsrcc.PTM` is an extension from 
 **BSR-ClusterComp**, previously denoted `bsrcc` 
 
 
