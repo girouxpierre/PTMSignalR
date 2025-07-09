@@ -1,14 +1,3 @@
-#' Salivary duct carcinoma transcriptomes
-#'
-#' A dataset containing expression, phosphorylation and ubiquitination values of
-#' CCRCC and one dataset containing clinical information
-#'
-#' @format Data frames with 10909 rows and 227 variables, 21319 rows and 209
-#' variables, 6966 rows and 152 variables and 108 rows and 216 variables
-#' @source \url{https://proteomic.datacommons.cancer.gov/pdc/cptac-pancancer}
-#' @usage data(lscc)
-"lscc"
-
 #' Clear cell renal cell carcinoma proteome and phosphoproteome
 #'
 #' Two dataset containing expression and phosphorylation values of CCRCC and
