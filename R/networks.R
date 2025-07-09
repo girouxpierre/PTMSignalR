@@ -280,8 +280,8 @@ getLRIntracellNetwork <- function(bsrinf, pval.thres=NULL, qval.thres=NULL,
                                   pos.targets=FALSE, neg.targets=FALSE,
                                   restrict.pw=NULL, node.size=5){
 
-    comp.obj <- is(bsrinf, "BSRInferenceComp") || is(bsrinf, "BSRInferenceCompPhospho")
-    ptm.obj <- is(bsrinf, "BSRInferenceCompPhospho")
+    comp.obj <- is(bsrinf, "BSRInferenceComp") || is(bsrinf, "BSRInferenceCompPTM")
+    PTM.obj <- is(bsrinf, "BSRInferenceCompPTM")
     if (!is(bsrinf, "BSRInference") && !comp.obj)
         stop("bsrinf must be a BSRInference or BSRInferenceComp object")
     if (!is.null(max.pval) && !comp.obj)
@@ -301,15 +301,15 @@ getLRIntracellNetwork <- function(bsrinf, pval.thres=NULL, qval.thres=NULL,
     pairs <- LRinter(bsrinf)
     t.genes <- tGenes(bsrinf)
     tg.corr <- tgCorr(bsrinf)
-    if(ptm.obj){
-      ptm.genes <- bsrinf@ptm.genes
+    if(PTM.obj){
+      PTM.genes <- bsrinf@PTM.genes
       p.genes <- bsrinf@p.genes
       dp.genes <- bsrinf@dp.genes
       
       #
-      if(sum(grepl("_", ptm.genes)) > 0){
+      if(sum(grepl("_", PTM.genes)) > 0){
         cat("\n a \n")
-        ptm.genes <- unique(na.omit(unlist(ptm.genes))) %>%  # Supprimer les NA et aplatir la liste
+        PTM.genes <- unique(na.omit(unlist(PTM.genes))) %>%  # Supprimer les NA et aplatir la liste
           sub("_.*", "", .) %>%                    # Supprimer tout après "_"
           unique()   
         p.genes <- unique(na.omit(unlist(p.genes))) %>%  # Supprimer les NA et aplatir la liste
@@ -321,14 +321,14 @@ getLRIntracellNetwork <- function(bsrinf, pval.thres=NULL, qval.thres=NULL,
       }
       
       # cat("\n b \n")
-      ptm.genes <- unique(ptm.genes)
+      PTM.genes <- unique(PTM.genes)
       p.genes <- unique(p.genes)
       dp.genes <- unique(dp.genes)
       #
-      # cat(length(ptm.genes))
+      # cat(length(PTM.genes))
       # cat("\n")
       #pg.corr <- pgCorr(bsrinf)
-      ptmg.corr <- bsrinf@ptmg.corr
+      PTMg.corr <- bsrinf@PTMg.corr
       pg.corr<- bsrinf@pg.corr
       dpg.corr <- bsrinf@dpg.corr
     }
@@ -340,21 +340,21 @@ getLRIntracellNetwork <- function(bsrinf, pval.thres=NULL, qval.thres=NULL,
     pairs <- pairs[good,]
     t.genes <- t.genes[good]
     tg.corr <- tg.corr[good]
-    if(ptm.obj){
+    if(PTM.obj){
       # cat("\n c \n")
-      # ptm.genes <- ptm.genes[good]
-      # ptmg.corr <- ptmg.corr[good]
-      # p.genes <- ptm.genes[ptm.genes %in% p.genes]
-      # pg.corr <- ptmg.corr[ptmg.corr %in% pg.corr[good]]
-      # dp.genes <- ptm.genes[ptm.genes %in% dp.genes]
-      # dpg.corr <- ptmg.corr[ptmg.corr %in% dpg.corr]
+      # PTM.genes <- PTM.genes[good]
+      # PTMg.corr <- PTMg.corr[good]
+      # p.genes <- PTM.genes[PTM.genes %in% p.genes]
+      # pg.corr <- PTMg.corr[PTMg.corr %in% pg.corr[good]]
+      # dp.genes <- PTM.genes[PTM.genes %in% dp.genes]
+      # dpg.corr <- PTMg.corr[PTMg.corr %in% dpg.corr]
     }
     if (comp.obj){
         tg.pval <- tgPval(bsrinf)[good]
         tg.logFC <- tgLogFC(bsrinf)[good]
-        # if(ptm.obj){
-        #   ptmg.pval <- ptmg.pval(bsrinf)[good]
-        #   ptmg.logFC <- ptmg.logFC(bsrinf)[good]
+        # if(PTM.obj){
+        #   PTMg.pval <- PTMg.pval(bsrinf)[good]
+        #   PTMg.logFC <- PTMg.logFC(bsrinf)[good]
         #   pg.pval <- pg.pval(bsrinf)[good]
         #   pg.logFC <- pg.logFC(bsrinf)[good]
         #   dpg.pval <- dpg.pval(bsrinf)[good]
@@ -444,9 +444,9 @@ getLRIntracellNetwork <- function(bsrinf, pval.thres=NULL, qval.thres=NULL,
     # build graph
     directed.int <- c("controls-state-change-of", "catalysis-precedes",
                       "controls-expression-of","controls-transport-of",
-                      "controls-phosphorylation-of","LR", "controls-phospho-of", "regulates-phospho-of", "controls-dephospho-of", "regulates-dephospho-of")
+                      "controls-phosphorylation-of","LR", "controls-PTM-of", "regulates-PTM-of", "controls-dePTM-of", "regulates-dePTM-of")
     directed <- all.edges$edge.type %in% directed.int
-    phosphorylated <- all.edges$edge.type %in% c("controls-phosphorylation-of", "controls-phospho-of", "regulates-phospho-of", "controls-dephospho-of", "regulates-dephospho-of")
+    PTMrylated <- all.edges$edge.type %in% c("controls-phosphorylation-of", "controls-PTM-of", "regulates-PTM-of", "controls-dePTM-of", "regulates-dePTM-of")
     ret <- all.edges[!directed,]
     from <- ret$from
     ret$from <- ret$to
