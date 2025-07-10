@@ -653,15 +653,18 @@ setMethod("initialInference", "BSRDataModelCompPTM", function(obj, cmp.name, ran
   inf.param$rank.p <- rank.p
   #inter <- .pValuesRegulatedLRPTM(pairs, param(obj), rank.p=rank.p, fdr.proc=fdr.proc)
   inter <- .pValuesRegulatedLRPTM(pairs, param(obj), rank.p=rank.p, fdr.proc=fdr.proc)
-  cat("\n")
-  cat(unlist(colnames(inter)))
+  # cat("\n")
+  # cat(unlist(colnames(inter)))
   
   ligands <- strsplit(inter$L, ";")
   receptors <- strsplit(inter$R, ";")
   tg <- strsplit(inter$target.genes, ";")
+  inter$PTM.genes <- as.character(inter$PTM.genes)
+  inter$addPTM.genes <- as.character(inter$addPTM.genes)
+  inter$rmPTM.genes <- as.character(inter$rmPTM.genes)
   PTMg <- strsplit(inter$PTM.genes, ";")
-  pg <- strsplit(inter$PTM.genes, ";")
-  dpg <- strsplit(inter$dePTM.genes, ";")
+  pg <- strsplit(inter$addPTM.genes, ";")
+  dpg <- strsplit(inter$rmPTM.genes, ";")
   tgpval <- lapply(strsplit(inter$target.pval, ";"),
                    function(x) as.numeric(x))
   
@@ -686,12 +689,12 @@ setMethod("initialInference", "BSRDataModelCompPTM", function(obj, cmp.name, ran
   # cat(unlist(inter$PTM.logFC))
   # pglogFC <- lapply(strsplit(inter$PTM.logFC[!is.na(inter$PTM.logFC)], ";"),
   #                   function(x) as.numeric(x))
-  pglogFC <- lapply(strsplit(as.character(inter$PTM.logFC), ";"),
+  pglogFC <- lapply(strsplit(as.character(inter$addPTM.logFC), ";"),
                     function(x) as.numeric(x))
   pgcorr <- NA
   # pgcorr <- lapply(strsplit(inter$PTM.corr[!is.na(inter$PTM.corr)], ";"),
   #                  function(x) as.numeric(x))
-  pgcorr <- lapply(strsplit(as.character(inter$PTM.corr), ";"),
+  pgcorr <- lapply(strsplit(as.character(inter$addPTM.corr), ";"),
                    function(x) as.numeric(x))
   
   dpglogFC <- NA
@@ -711,7 +714,7 @@ setMethod("initialInference", "BSRDataModelCompPTM", function(obj, cmp.name, ran
   inf.param$pathway.reduced <- FALSE
   
   new("BSRInferenceCompPTM", LRinter=inter[,c("L","R","pw.id","pw.name","pval","qval","L.logFC","R.logFC","LR.corr","LR.pval","pvalLRT","pvalRPTM",
-                                                  "rank","rank.corr","len","lenPTM", "lenp", "lendp", "PTM.genes","PTM.logFC","PTM.genes","PTM.logFC","dePTM.genes","dePTM.logFC","target.genes")], ligands=ligands,
+                                                  "rank","rank.corr","len","lenPTM", "lenAdd", "lenRm", "PTM.genes","PTM.logFC","addPTM.genes","addPTM.logFC","rmPTM.genes","rmPTM.logFC","target.genes")], ligands=ligands,
       receptors=receptors, t.genes=tg, tg.corr=tgcorr, PTM.genes=PTMg, PTMg.corr=PTMgcorr, p.genes=pg, pg.corr=pgcorr, dp.genes=dpg, dpg.corr=dpgcorr,
       tg.logFC=tglogFC, pg.logFC=pglogFC, inf.param=inf.param, cmp.name=cmp.name)
   

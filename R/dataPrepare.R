@@ -70,7 +70,7 @@ resetLRdb <- function(db, switch=FALSE) {
 #'   zeros according to \code{min.count} and \code{prop}.
 #' @param conversion.dict  Correspondence table of HUGO gene symbols
 #' human/nonhuman. Not used unless the organism is different from human.
-#' @param PTM A table or matrix of read counts
+#' @param phospho A table or matrix of read counts
 #'
 #' @return A BSRModelData object with empty model parameters.
 #'
@@ -109,7 +109,7 @@ resetLRdb <- function(db, switch=FALSE) {
 #' normal <- grep("^N", names(sdc))
 #' bsrdm <- prepareDataset(sdc[,-normal])
 #'
-prepareDataset <- function(counts, PTM = NULL, normalize = TRUE, symbol.col = NULL, symbolPh.col = NULL, pos.col = NULL, single = FALSE, symPos = NULL, min.count = 10,
+prepareDataset <- function(counts, phospho = NULL, normalize = TRUE, symbol.col = NULL, symbolPh.col = NULL, pos.col = NULL, single = FALSE, symPos = NULL, min.count = 10,
     prop = 0.1, method = c("UQ", "TC"), log.transformed = FALSE, min.LR.found = 80, 
     species = "hsapiens", conversion.dict = NULL, 
     UQ.pc = 0.75) {
@@ -148,8 +148,8 @@ prepareDataset <- function(counts, PTM = NULL, normalize = TRUE, symbol.col = NU
 
         # home-made but fast
         symbols <- as.character(counts[, symbol.col])
-        symbolsPh <- as.character(PTM[, symbolPh.col])
-        pos <- as.character(PTM[, pos.col])
+        symbolsPh <- as.character(phospho[, symbolPh.col])
+        pos <- as.character(phospho[, pos.col])
         d <- symbols[duplicated(symbols)]
         bad <- NULL
         for (s in d) {
@@ -162,13 +162,13 @@ prepareDataset <- function(counts, PTM = NULL, normalize = TRUE, symbol.col = NU
         # remove duplicates and the gene symbol column
         if (single){
           # symPos <- matrix()
-          # symPos <- PTM[,c(symbolPh.col,pos.col)]
-          PTM <- PTM[,-c(symbolPh.col,pos.col)]
+          # symPos <- phospho[,c(symbolPh.col,pos.col)]
+          phospho <- phospho[,-c(symbolPh.col,pos.col)]
           if(symbolsPh == pos)
-            rownames(PTM) <- symbolsPh
+            rownames(phospho) <- symbolsPh
           else
-            rownames(PTM) <- paste0(symbolsPh, "_", pos)
-          cat(paste0("\n ", head(rownames(PTM)), "\n"))
+            rownames(phospho) <- paste0(symbolsPh, "_", pos)
+          cat(paste0("\n ", head(rownames(phospho)), "\n"))
           cat(paste0("\n ", head(symPos), "\n"))
         }
         else{
@@ -191,10 +191,10 @@ prepareDataset <- function(counts, PTM = NULL, normalize = TRUE, symbol.col = NU
     
     # home-made but fast
     #symbols <- as.character(counts[, symbol.col])
-    symbolsPh <- as.character(PTM[, symbolPh.col])
+    symbolsPh <- as.character(phospho[, symbolPh.col])
     if (!single){
-      PTM <- PTM[,-c(symbolPh.col)]
-      rownames(PTM) <- symbolsPh
+      phospho <- phospho[,-c(symbolPh.col)]
+      rownames(phospho) <- symbolsPh
     }
     # d <- symbolsPh[duplicated(symbolsPh)]
     # bad <- NULL
@@ -207,15 +207,15 @@ prepareDataset <- function(counts, PTM = NULL, normalize = TRUE, symbol.col = NU
     # not foor sing
     # remove duplicates and the gene symbol column
     if (single){
-      pos <- as.character(PTM[, pos.col])
+      pos <- as.character(phospho[, pos.col])
       symPos <- data.matrix(cbind(symbolsPh, as.numeric(pos)))
       cat(paste0("symbolsPh: \n ", symbolsPh[1:5], "\n"))
       cat(paste0("pos: \n ", pos[1:5], "\n"))
       cat(paste0("symPos: \n ", symPos[1:5,], "\n"))
-      #symPos <- data.matrix(PTM[,c(symbolPh.col,pos.col)])
-      PTM <- PTM[,-c(symbolPh.col,pos.col)]
-      rownames(PTM) <- paste0(symbolsPh, "_", pos)
-      #cat(paste0("head(rownames(PTM)): \n ", head(rownames(PTM)), "\n"))
+      #symPos <- data.matrix(phospho[,c(symbolPh.col,pos.col)])
+      phospho <- phospho[,-c(symbolPh.col,pos.col)]
+      rownames(phospho) <- paste0(symbolsPh, "_", pos)
+      #cat(paste0("head(rownames(phospho)): \n ", head(rownames(phospho)), "\n"))
       cat(paste0("head(symPos): \n ", head(symPos), "\n"))
     }
     else{
@@ -237,9 +237,9 @@ prepareDataset <- function(counts, PTM = NULL, normalize = TRUE, symbol.col = NU
     if (!is.matrix(counts))
         counts <- data.matrix(counts)
     
-    if (!is.null(PTM) && !is.matrix(PTM)){
-      PTM <- data.matrix(PTM)
-      cat(PTM[1:3,1:3])
+    if (!is.null(phospho) && !is.matrix(phospho)){
+      phospho <- data.matrix(phospho)
+      cat(phospho[1:3,1:3])
     }
 
     # avoid empty rows even if no normalization is performed here
@@ -260,21 +260,21 @@ prepareDataset <- function(counts, PTM = NULL, normalize = TRUE, symbol.col = NU
           tot <- colSums(counts, na.rm=T)
         ncounts <- sweep(counts, 2, tot/stats::median(tot, na.rm=T), "/")
         
-        if (!is.null(PTM)){
+        if (!is.null(phospho)){
 
-          good.c <- rowSums(PTM >= min.count, na.rm=T) >= prop * ncol(PTM)
-          PTM <- PTM[good.c, ]
+          good.c <- rowSums(phospho >= min.count, na.rm=T) >= prop * ncol(phospho)
+          phospho <- phospho[good.c, ]
           if (method == "UQ"){
-            tot <- apply(PTM, 2, function(x) stats::quantile(x[x > 0],
+            tot <- apply(phospho, 2, function(x) stats::quantile(x[x > 0],
                                                                 prob=UQ.pc, na.rm=T))
             if (sum(tot == 0) > 0)
               stop(paste0("Cannot perform UQ normalization (percentile=",
                           UQ.pc," ), not enough signal in sample(s) ",
-                          paste(colnames(PTM)[tot==0], collapse=", ")))
+                          paste(colnames(phospho)[tot==0], collapse=", ")))
           }
           else
-              tot <- colSums(PTM, na.rm=T)
-          PTM <- sweep(PTM, 2, tot/stats::median(tot, na.rm=T), "/")
+              tot <- colSums(phospho, na.rm=T)
+          phospho <- sweep(phospho, 2, tot/stats::median(tot, na.rm=T), "/")
         }
     }
     else
@@ -307,13 +307,13 @@ prepareDataset <- function(counts, PTM = NULL, normalize = TRUE, symbol.col = NU
     if (nLR < min.LR.found)
         stop(paste0("Not enough LR genes (",nLR," < ", min.LR.found,
                     " were found).\n"))
-    if (!is.null(PTM)){
-      ncounts <- ncounts[,colnames(ncounts) %in% colnames(PTM)]
-      PTM <- PTM[,colnames(PTM) %in% colnames(ncounts)]
+    if (!is.null(phospho)){
+      ncounts <- ncounts[,colnames(ncounts) %in% colnames(phospho)]
+      phospho <- phospho[,colnames(phospho) %in% colnames(ncounts)]
     }
     cat("\n prepareDataset - end")
-    if (!is.null(PTM))
-      new("BSRDataModelPTM", ncounts=ncounts, PTM=PTM, symPos=symPos, log.transformed=log.transformed,
+    if (!is.null(phospho))
+      new("BSRDataModelPhospho", ncounts=ncounts, phospho=phospho, symPos=symPos, log.transformed=log.transformed,
           normalization=toupper(method),initial.organism=species,
           initial.orthologs=homolog.genes, single=single)
     else
