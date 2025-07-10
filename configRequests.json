@@ -1,0 +1,7 @@
+{
+    "cypPhospho_cataSolo" : "MATCH(r1:ReactionLikeEvent{speciesName:'Homo sapiens'})-[catalyseLink:catalystActivity|physicalEntity|referenceEntity*]->(catalyser:ReferenceGeneProduct) RETURN r1.displayName AS reaction, collect(distinct catalyser.identifier) AS catalysers",
+    "cypPhospho_cataComp" : "MATCH(r1:ReactionLikeEvent{speciesName:'Homo sapiens'})-[catalyseLink:catalystActivity|activeUnit|hasComponent|hasMember|referenceEntity*]->(catalyser:ReferenceGeneProduct) RETURN r1.displayName AS reaction, collect(distinct catalyser.identifier) AS catalysers",
+    "cypPhospho_genePin" : "MATCH(r:ReactionLikeEvent{speciesName:'Homo sapiens'})-[geneInputLink:input|physicalEntity|hasComponent|hasMember*]->(geneEncoded:GenomeEncodedEntity)-[linkRes:hasModifiedResidue]->(resi), (geneEncoded)-[linkOut:referenceEntity]->(geneInput:ReferenceGeneProduct) WHERE resi.label ='P' RETURN r.displayName AS reaction, geneInput.identifier as geneName, collect(DISTINCT resi.coordinate) AS modifiedPositions",
+    "cypPhospho_genePout" :"MATCH(r:ReactionLikeEvent{speciesName:'Homo sapiens'})-[geneOutputLink:output|physicalEntity|hasComponent|hasMember*]->(geneEncoded:GenomeEncodedEntity)-[linkRes:hasModifiedResidue]->(resi), (geneEncoded)-[linkOut:referenceEntity]->(geneOutput:ReferenceGeneProduct) WHERE resi.label ='P' RETURN r.displayName AS reaction, geneOutput.identifier as geneName, collect(DISTINCT resi.coordinate) AS modifiedPositions",
+
+}
