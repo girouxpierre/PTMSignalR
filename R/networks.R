@@ -444,9 +444,9 @@ getLRIntracellNetwork <- function(bsrinf, pval.thres=NULL, qval.thres=NULL,
     # build graph
     directed.int <- c("controls-state-change-of", "catalysis-precedes",
                       "controls-expression-of","controls-transport-of",
-                      "controls-phosphorylation-of","LR", "controls-PTM-of", "regulates-PTM-of", "controls-dePTM-of", "regulates-dePTM-of")
+                      "controls-phosphorylation-of","LR", "controls-phospho-of", "regulates-phospho-of", "controls-dephospho-of", "regulates-dephospho-of")
     directed <- all.edges$edge.type %in% directed.int
-    PTMrylated <- all.edges$edge.type %in% c("controls-phosphorylation-of", "controls-PTM-of", "regulates-PTM-of", "controls-dePTM-of", "regulates-dePTM-of")
+    phosphorylated <- all.edges$edge.type %in% c("controls-phosphorylation-of", "controls-phospho-of", "regulates-phospho-of", "controls-dephospho-of", "regulates-dephospho-of")
     ret <- all.edges[!directed,]
     from <- ret$from
     ret$from <- ret$to
