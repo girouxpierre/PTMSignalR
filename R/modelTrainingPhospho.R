@@ -11,16 +11,16 @@
 #' @importFrom stats quantile
 #' @keywords internal
 .buildPermutationIndices <- function(ncounts, n.bins = 20) {
-  cat("\n .buildPermutationIndices - modelTrainPTM")
-  
+  cat("\n .buildPermutationIndices - modelTrainPhos")
+
   rm <-  rowMeans(ncounts, na.rm = TRUE)
   breaks <- stats::quantile(rm, prob = (seq(0,n.bins))/n.bins)
   breaks[1] <- 0
-  
+
   lapply(seq(2,length(breaks)),
          function(i) which(rm>breaks[i-1] & rm<=breaks[i])
   )
-  
+
 }  # .buildPermutationIndices
 
 
@@ -35,11 +35,11 @@
 #' @importFrom foreach %do% %dopar%
 #' @keywords internal
 .shufflePermutationIndices <- function(pind) {
-  
+
   lapply(pind,
          function(x) sample(x, length(x))
   )
-  
+
 } # .shufflePermutationIndices
 
 
@@ -54,16 +54,16 @@
 #'
 #' @keywords internal
 .buildPermutatedCountMatrix <- function(ncounts, pind) {
-  cat("\n .buildPermutatedCountMatrix - modelTrainPTM")
+  cat("\n .buildPermutatedCountMatrix - modelTrainPhos")
   symbols <- rownames(ncounts)
   rind <- .shufflePermutationIndices(pind)
-  
+
   for (i in seq_len(length(pind)))
     symbols[pind[[i]]] <- symbols[rind[[i]]]
   rownames(ncounts) <- symbols
-  
+
   ncounts
-  
+
 }  # .buildPermutatedCountMatrix
 
 
@@ -84,14 +84,14 @@
 #'   plot a main title.
 #' @keywords internal
 .getGaussianParam <- function(d, title, verbose = FALSE, file.name = NULL) {
-  
+
   if (!is.null(file.name)) {
     grDevices::pdf(file = file.name, width = 4, height = 4,
                    pointsize = 10, useDingbats = FALSE)
     graphics::hist(d, freq=FALSE, main=paste0(title, " / censored normal"),
                    xlab = "Spearman correlation", breaks = 30)
   }
-  
+
   # initial fit with a Gaussian over ]-infty;+infty[]
   mu <- mean(d)
   sigma <- stats::sd(d)
@@ -99,7 +99,7 @@
     cat("\n Initial estimate of the mean: ", mu, "\n", sep="")
     cat("\n Initial estimate of the standard deviation: ", sigma, "\n", sep="")
   }
-  
+
   # ML fit of a censored Gaussian on [-1;1]
   GaussianLL <- function(par){
     q <- stats::pnorm(1, par[1], par[2]) - stats::pnorm(-1, par[1], par[2])
@@ -123,12 +123,12 @@
   start <- stats::pnorm(-1, mu, sigma)
   params <- list(mu = mu, sigma = sigma, factor = q,
                  start = start, distrib = "censored_normal")
-  
+
   # KS test D statistics
   x <- seq(-1, 1, by = 0.005)
   y <- stats::dnorm(x, mu, sigma)/q
   params$D <- as.numeric(suppressWarnings(stats::ks.test(d, y)$statistic))
-  
+
   # Chi2
   x <- seq(-1, 1, by = 0.05)
   h <- graphics::hist(d, breaks=x, plot=FALSE)
@@ -136,7 +136,7 @@
   gauss.rf <- .cdfGaussian(h$breaks[-1], params) -
     .cdfGaussian(h$breaks[-length(h$breaks)], params)
   params$Chi2 <- sum((hist.rf-gauss.rf)**2)
-  
+
   # control plot
   if (!is.null(file.name)) {
     x <- seq(-1, 1, by = 0.002)
@@ -148,9 +148,9 @@
     # fn <- gsub("pdf$", "txt", file.name)
     # write.table(d, file=fn, row.names = FALSE)
   }
-  
+
   params
-  
+
 }  # .getGaussianParam
 
 
@@ -162,9 +162,9 @@
 #' @return A vector of probabilities P(X<x|par).
 #' @keywords internal
 .cdfGaussian <- function(x, par){
-  
+
   (stats::pnorm(x, par$mu, par$sigma) - par$start) / par$factor
-  
+
 } # .cdfGaussian
 
 
@@ -193,7 +193,7 @@
                    main=paste0(title, " / censored mixed normal"),
                    xlab = "Spearman correlation", breaks = 30)
   }
-  
+
   # ML fit of a censored mixed-Gaussian on [-1;1]
   mixedGaussianLL <- function(par){
     alpha <- par[1]
@@ -237,13 +237,13 @@
     (1-alpha)*stats::pnorm(-1, mu2, sigma2)
   params <- list(alpha=alpha, mu1=mu1, sigma1=sigma1, mu2=mu2, sigma2=sigma2,
                  factor=q, start=start, distrib="censored_mixed_normal")
-  
+
   # KS test D statistics
   x <- seq(-1, 1, by = 0.005)
   y <- alpha*stats::dnorm(x, mu1, sigma1) +
     (1-alpha)*stats::dnorm(x, mu2, sigma2)/q
   params$D <- as.numeric(suppressWarnings(stats::ks.test(d, y)$statistic))
-  
+
   # Chi2
   x <- seq(-1, 1, by = 0.05)
   h <- graphics::hist(d, breaks=x, plot=FALSE)
@@ -251,7 +251,7 @@
   mixed.rf <- .cdfMixedGaussian(h$breaks[-1], params) -
     .cdfMixedGaussian(h$breaks[-length(h$breaks)], params)
   params$Chi2 <- sum((hist.rf-mixed.rf)**2)
-  
+
   # control plot
   if (!is.null(file.name)) {
     x <- seq(-1, 1, by = 0.002)
@@ -262,9 +262,9 @@
                      col = "blue", bty = "n", pt.cex = 0.5)
     grDevices::dev.off()
   }
-  
+
   params
-  
+
 }  # .getMixedGaussianParam
 
 
@@ -276,12 +276,12 @@
 #' @return A vector of probabilities P(X<x|par).
 #' @keywords internal
 .cdfMixedGaussian <- function(x, par){
-  
+
   (par$alpha*stats::pnorm(x, par$mu1, par$sigma1) +
      (1-par$alpha)*stats::pnorm(x, par$mu2, par$sigma2) -
      par$start
   ) / par$factor
-  
+
 } # .cdfMixedGaussian
 
 
@@ -302,16 +302,16 @@
 #'   plot a main title.
 #' @keywords internal
 .getEmpiricalParam <- function(d, title, verbose = FALSE, file.name = NULL) {
-  
+
   if (!is.null(file.name)) {
     grDevices::pdf(file = file.name, width = 4, height = 4,
                    pointsize = 10, useDingbats = FALSE)
     graphics::hist(d, freq=FALSE, main=paste0(title, " / empirical"),
                    xlab = "Spearman correlation", breaks=30)
   }
-  
+
   empir <- stats::ecdf(d)
-  
+
   # control plot
   if (!is.null(file.name)) {
     step <- 0.005
@@ -326,9 +326,9 @@
                      col = "blue", bty = "n", pt.cex = 0.5)
     grDevices::dev.off()
   }
-  
+
   list(empirCDF = empir, distrib = "empirical")
-  
+
 }  # .getEmpiricalParam
 
 
@@ -341,7 +341,7 @@
 #' @keywords internal
 .cdfEmpirical <- function(x, par){
   par$empirCDF(x)
-  
+
 } # .cdfEmpirical
 
 
@@ -364,23 +364,23 @@
 #' @keywords internal
 .getKernelEmpiricalParam <- function(d, title, verbose = FALSE,
                                      file.name = NULL, n=512) {
-  
+
   if (!is.null(file.name)) {
     grDevices::pdf(file = file.name, width = 4, height = 4,
                    pointsize = 10, useDingbats = FALSE)
     graphics::hist(d, freq=FALSE, main=paste0(title, " / kernel empirical"),
                    xlab = "Spearman correlation", breaks=30)
   }
-  
+
   df <- stats::density(d, from=-1, to=1, n=n)
   cd <- cumsum(df$y)
   cd <- cd/cd[n]
   params <- list(kernelCDF = stats::stepfun(df$x, c(0, cd)),
                  distrib = "kernel_empirical")
-  
+
   # KS test D statistics
   params$D <- as.numeric(suppressWarnings(stats::ks.test(d, df$y)$statistic))
-  
+
   # Chi2
   x <- seq(-1, 1, by = 0.05)
   h <- graphics::hist(d, breaks=x, plot=FALSE)
@@ -388,7 +388,7 @@
   kernel.rf <- .cdfKernelEmpirical(h$breaks[-1], params) -
     .cdfKernelEmpirical(h$breaks[-length(h$breaks)], params)
   params$Chi2 <- sum((hist.rf-kernel.rf)**2)
-  
+
   # control plot
   if (!is.null(file.name)) {
     # left <- cd[-c(n-1,n)]
@@ -401,9 +401,9 @@
                      col = "blue", bty = "n", pt.cex = 0.5)
     grDevices::dev.off()
   }
-  
+
   params
-  
+
 }  # .getKernelEmpiricalParam
 
 
@@ -416,7 +416,7 @@
 #' @keywords internal
 .cdfKernelEmpirical <- function(x, par){
   par$kernelCDF(x)
-  
+
 } # .cdfKernelEmpirical
 
 
@@ -445,7 +445,7 @@
                    main=paste0(title, " / censored stable"),
                    breaks = 30, xlab = "Spearman correlation")
   }
-  
+
   # ML fit of a censored stable on [-1;1]
   stableLL <- function(par){
     q <- stabledist::pstable(1, alpha=par[1], beta=par[2],
@@ -478,7 +478,7 @@
                         gamma=gamma, delta=delta)
   start <- stabledist::pstable(-1, alpha=alpha, beta=beta,
                                gamma=gamma, delta=delta)
-  
+
   # control plot
   if (!is.null(file.name)) {
     x <- seq(-1, 1, by = 0.002)
@@ -491,7 +491,7 @@
   }
   list(alpha=alpha, beta=beta, gamma=gamma, delta=delta, factor=q,
        start=start, distrib="censored_stable")
-  
+
 }  # .getAlphaStableParam
 
 
@@ -504,10 +504,10 @@
 #' @importFrom stabledist pstable dstable
 #' @keywords internal
 .cdfAlphaStable <- function(x, par){
-  
+
   (stabledist::pstable(x, alpha=par$alpha, beta=par$beta, gamma=par$gamma,
                        delta=par$delta) - par$start) / par$factor
-  
+
 } # .cdfAlphaStable
 
 
@@ -544,17 +544,17 @@
 #'
 #' @importFrom foreach %do% %dopar%
 #' @keywords internal
-.getEmpiricalNull <- function(ncounts, PTM, n.rand = 5, min.cor = -1,
+.getEmpiricalNull <- function(ncounts, phospho, n.rand = 5, min.cor = -1,
                               with.complex = TRUE, max.pw.size = 200,
                               min.pw.size = 5, min.positive = 4) {
-  cat("\n .getEmpiricalNull - modelTrainPTM - debut")
+  cat("\n .getEmpiricalNull - modelTrainPhos - debut")
   pindices <- .buildPermutationIndices(ncounts)
-  #cat("\n ici")
-  r.ds <- prepareDataset(ncounts, PTM, normalize = FALSE, method = "ALREADY",
+  cat("\n ici")
+  r.ds <- prepareDataset(ncounts, phospho, normalize = FALSE, method = "ALREADY",
                          min.LR.found = 0)
   #cat(r.ds)
-  #cat("\n n.rand = ")
-  #cat(n.rand)
+  cat("\n n.rand = ")
+  cat(n.rand)
   if (foreach::getDoParWorkers() > 1)
     foreach::foreach(k = seq_len(n.rand), .combine = c) %dopar% {
       ncounts(r.ds) <- .buildPermutatedCountMatrix(ncounts, pindices)
@@ -569,16 +569,16 @@
     foreach::foreach(k = seq_len(n.rand), .combine = c) %do% {
       #cat("\n 3a")
       ncounts(r.ds) <- .buildPermutatedCountMatrix(ncounts, pindices)
-      #cat("\n .getEmpiricalNull - modelTrainPTM - av .getCorrelatedLR")
+      cat("\n .getEmpiricalNull - modelTrainPhos - av .getCorrelatedLR")
       r.LR <- .getCorrelatedLR(r.ds, min.cor = min.cor)
-      #cat("\n .getEmpiricalNull - modelTrainPTM - ap .getCorrelatedLR")
+      cat("\n .getEmpiricalNull - modelTrainPhos - ap .getCorrelatedLR")
       list(.checkReceptorSignaling(r.ds, r.LR,
                                    with.complex = with.complex, max.pw.size = max.pw.size,
                                    min.pw.size = min.pw.size, min.positive = min.positive)
       )
-      #cat("\n .getEmpiricalNull - modelTrainPTM - ap .checkReceptorSignaling")
+      #cat("\n .getEmpiricalNull - modelTrainPhos - ap .checkReceptorSignaling")
     }}
-  
+
 }  # .getEmpiricalNull
 
 
@@ -615,66 +615,66 @@
 #'
 #' @importFrom foreach %do% %dopar%
 #' @keywords internal
-.getEmpiricalNullPTM <- function(ncounts, PTM, n.rand = 5, min.cor = -1,
+.getEmpiricalNullPhospho <- function(ncounts, phospho, n.rand = 5, min.cor = -1,
                                      with.complex = TRUE, max.pw.size = 200,
                                      min.pw.size = 5, min.positive = 4, single=FALSE, symPos=NULL, r.LR=NULL) {
-  # cat("\n .getEmpiricalNullPTM - modelTrainPTM - debut")
-  # cat("\n n.rand1: ",n.rand)
+  cat("\n .getEmpiricalNullPhospho - modelTrainPhos - debut")
+  cat("\n n.rand1: ",n.rand)
   n.rand <- 200
-  pindices <- .buildPermutationIndices(PTM, n.bins = 20)
-  # cat("\n pindices: \n")
-  # cat(str(pindices))
-  # cat("\n n.rand2: ",n.rand)
+  pindices <- .buildPermutationIndices(phospho, n.bins = 20)
+  cat("\n pindices: \n")
+  cat(str(pindices))
+  cat("\n n.rand2: ",n.rand)
   # if(!is.null(r.ds)){
   #   cat("\n r.ds1@symPos: \n")
   #   cat((r.ds@symPos[1:5,]))
   # }
-  
+
   if(single)
-    r.ds <- prepareDataset(ncounts, PTM = PTM, normalize = FALSE, method = "ALREADY",
+    r.ds <- prepareDataset(ncounts, phospho = phospho, normalize = FALSE, method = "ALREADY",
                          min.LR.found = 0, symPos = symPos, single = single)
   else
-    r.ds <- prepareDataset(ncounts, PTM = PTM, normalize = FALSE, method = "ALREADY",
+    r.ds <- prepareDataset(ncounts, phospho = phospho, normalize = FALSE, method = "ALREADY",
                            min.LR.found = 0)
-  # cat("\n r.ds: \n")
-  # cat(str(r.ds))
-  # # cat("\n r.ds@symPos: \n")
-  # # cat((r.ds@symPos[1:5,]))
-  # cat("\n n.rand3: ",n.rand)
-  # cat("\n .getEmpiricalNullPTM - modelTrainPTM - ap prepDataset")
+  cat("\n r.ds: \n")
+  cat(str(r.ds))
+  # cat("\n r.ds@symPos: \n")
+  # cat((r.ds@symPos[1:5,]))
+  cat("\n n.rand3: ",n.rand)
+  cat("\n .getEmpiricalNullPhospho - modelTrainPhos - ap prepDataset")
   if (foreach::getDoParWorkers() > 1) #probleme ici
     foreach::foreach(k = seq_len(n.rand), .combine = c) %dopar% {
-      PTM(r.ds) <- .buildPermutatedCountMatrix(PTM, pindices)
+      phospho(r.ds) <- .buildPermutatedCountMatrix(phospho, pindices)
       r.LR <- .getCorrelatedLR(r.ds, min.cor = min.cor)
-      #cat("\n if: ",str(r.ds), "\n", unlist(r.LR))
+      cat("\n if: ",str(r.ds), "\n", unlist(r.LR))
       list(.checkReceptorSignaling(r.ds, r.LR,
                                    with.complex = with.complex, max.pw.size = max.pw.size,
-                                   min.pw.size = min.pw.size, min.positive = min.positive, infPTM = T)
+                                   min.pw.size = min.pw.size, min.positive = min.positive, infPhos = T)
       )
     }
   else{
     foreach::foreach(k = seq_len(n.rand), .combine = c) %do% {
-      #cat(k,"\n la ?")
-      PTM(r.ds) <- .buildPermutatedCountMatrix(PTM, pindices)
-      # cat("\n r.ds@PTM: ", r.ds@PTM[1:5,1:2]) #?
-      # cat("\n r.ds: ", str(r.ds)) #?
+      cat(k,"\n la ?")
+      phospho(r.ds) <- .buildPermutatedCountMatrix(phospho, pindices)
+      cat("\n r.ds@phospho: ", r.ds@phospho[1:5,1:2]) #?
+      cat("\n r.ds: ", str(r.ds)) #?
       r.LR <- .getCorrelatedLR(r.ds, min.cor = min.cor)
-      # cat("\n else: ", unlist(r.LR)) #?
-      # cat("\n listCheckRS: \n") #pas ok
+      cat("\n else: ", unlist(r.LR)) #?
+      cat("\n listCheckRS: \n") #pas ok
       #rds ok, rlr ok mais rn ncounts=ABC_123 reste ok, single true
       # cat(unlist(list(.checkReceptorSignaling(r.ds, r.LR,
       #                                  with.complex = with.complex, max.pw.size = max.pw.size,
-      #                                  min.pw.size = min.pw.size, min.positive = min.positive, infPTM = T)
+      #                                  min.pw.size = min.pw.size, min.positive = min.positive, infPhos = T)
       # )))
-      #cat("\n youhou \n")
+      cat("\n youhou \n")
       list(.checkReceptorSignaling(r.ds, r.LR,
                                    with.complex = with.complex, max.pw.size = max.pw.size,
-                                   min.pw.size = min.pw.size, min.positive = min.positive, infPTM = T)
+                                   min.pw.size = min.pw.size, min.positive = min.positive, infPhos = T)
       )
     }
     }
-  #cat("\n .getEmpiricalNullPTM - modelTrainPTM - fin")
-}  # .getEmpiricalNullPTM
+  #cat("\n .getEmpiricalNullPhospho - modelTrainPhos - fin")
+}  # .getEmpiricalNullPhospho
 
 
 #' Sampling of ligand-receptor correlation null distribution
@@ -699,15 +699,15 @@
 #'
 #' @importFrom foreach %do% %dopar%
 #' @keywords internal
-.getEmpiricalNullCorrLR <- function(ncounts, PTM, n.rand = 5, min.cor = -1) {
-  cat("\n .getEmpiricalNullCorrLR - modelTrainPTM - debut")
+.getEmpiricalNullCorrLR <- function(ncounts, phospho, n.rand = 5, min.cor = -1) {
+  cat("\n .getEmpiricalNullCorrLR - modelTrainPhos - debut")
   pindices <- .buildPermutationIndices(ncounts)
   #cat(pindices)
   #cat(head(ncounts))
-  #cat(head(PTM))
-  # cat("\n n.rand =")
-  # cat(n.rand)
-  r.ds <- prepareDataset(ncounts, PTM=PTM, normalize = FALSE, method = "ALREADY",
+  #cat(head(phospho))
+  cat("\n n.rand =")
+  cat(n.rand)
+  r.ds <- prepareDataset(ncounts, phospho=phospho, normalize = FALSE, method = "ALREADY",
                          min.LR.found = 0)
   str(r.ds)
   if (foreach::getDoParWorkers() > 1){
@@ -719,11 +719,10 @@
     }}
   else
     foreach::foreach(k = seq_len(n.rand), .combine = c) %do% {
-      #cat("\n .getEmpiricalNullCorrLR - modelTrainPTM - av .buildPermutatedCountMatrix")
+      cat("\n .getEmpiricalNullCorrLR - modelTrainPhos - av .buildPermutatedCountMatrix")
       ncounts(r.ds) <- .buildPermutatedCountMatrix(ncounts, pindices)
-      #cat("\n .getEmpiricalNullCorrLR - modelTrainPTM - av .getCorrelatedLR")
+      cat("\n .getEmpiricalNullCorrLR - modelTrainPhos - av .getCorrelatedLR")
       list(.getCorrelatedLR(r.ds, min.cor = min.cor))
     }
-  
-}  # .getEmpiricalNullCorrLR
 
+}  # .getEmpiricalNullCorrLR
