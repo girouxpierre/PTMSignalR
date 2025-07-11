@@ -8,5 +8,6 @@
  myEnv <- new.env(parent = globalenv())
  attach(myEnv, name="LRdbEnv")
  assign("LRdb", SingleCellSignalR::LRdb, envir = as.environment("LRdbEnv"))
+ data(sysdata, envir=environment())
 
 }
