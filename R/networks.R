@@ -130,14 +130,14 @@ getLRNetwork <- function(bsrinf, pval.thres=NULL, qval.thres=NULL,
                               min.cor=0.25, pos.targets=FALSE,
                               neg.targets=FALSE, tg.pval=NULL,
                               max.pval=NULL, tg.logFC=NULL, min.logFC=0){
-  
+
   # local binding
   i <- NULL
-  
+
   directed.int <- c("controls-state-change-of", "catalysis-precedes",
                     "controls-expression-of", "controls-transport-of",
                     "controls-phosphorylation-of")
-  
+
   #arcs <- foreach::foreach(i=1:nrow(pairs), .combine=rbind) %do% {
     arcs <- NULL
     for (i in 1:nrow(pairs)) {
@@ -145,7 +145,7 @@ getLRNetwork <- function(bsrinf, pval.thres=NULL, qval.thres=NULL,
     p <- pairs$pw.id[i]
     tg <- t.genes[[i]]
     ##supp because tg.pval null -> a rectifier ##
-    
+
     # if (is.null(max.pval) && is.null(min.logFC)){
     #   # selection on correlations
     #   corr <- tg.corr[[i]]
@@ -183,7 +183,7 @@ getLRNetwork <- function(bsrinf, pval.thres=NULL, qval.thres=NULL,
     d.int <- unique(rbind(int[, c("a.gn", "b.gn")], ret))
     g <- igraph::graph_from_data_frame(d.int, directed=TRUE)
     targets <- intersect(targets, c(d.int$a.gn, d.int$b.gn))
-    
+
     # keep shortest paths from the receptor to the targets only
     if ((r %in% d.int$a.gn || r %in% d.int$b.gn) && length(targets) > 0){
       paths <- suppressWarnings(igraph::shortest_paths(g,
@@ -210,9 +210,9 @@ getLRNetwork <- function(bsrinf, pval.thres=NULL, qval.thres=NULL,
     arcs <- rbind(arcs, unique(a.iter))
     unique(a.iter)
   }
-  
+
   unique(arcs)
-  
+
 } # .edgesLRIntracell
 
 
@@ -280,8 +280,8 @@ getLRIntracellNetwork <- function(bsrinf, pval.thres=NULL, qval.thres=NULL,
                                   pos.targets=FALSE, neg.targets=FALSE,
                                   restrict.pw=NULL, node.size=5){
 
-    comp.obj <- is(bsrinf, "BSRInferenceComp") || is(bsrinf, "BSRInferenceCompPTM")
-    PTM.obj <- is(bsrinf, "BSRInferenceCompPTM")
+    comp.obj <- is(bsrinf, "BSRInferenceComp") || is(bsrinf, "BSRInferenceCompPhospho")
+    ptm.obj <- is(bsrinf, "BSRInferenceCompPhospho")
     if (!is(bsrinf, "BSRInference") && !comp.obj)
         stop("bsrinf must be a BSRInference or BSRInferenceComp object")
     if (!is.null(max.pval) && !comp.obj)
@@ -301,15 +301,15 @@ getLRIntracellNetwork <- function(bsrinf, pval.thres=NULL, qval.thres=NULL,
     pairs <- LRinter(bsrinf)
     t.genes <- tGenes(bsrinf)
     tg.corr <- tgCorr(bsrinf)
-    if(PTM.obj){
-      PTM.genes <- bsrinf@PTM.genes
+    if(ptm.obj){
+      ptm.genes <- bsrinf@ptm.genes
       p.genes <- bsrinf@p.genes
       dp.genes <- bsrinf@dp.genes
-      
+
       #
-      if(sum(grepl("_", PTM.genes)) > 0){
+      if(sum(grepl("_", ptm.genes)) > 0){
         cat("\n a \n")
-        PTM.genes <- unique(na.omit(unlist(PTM.genes))) %>%  # Supprimer les NA et aplatir la liste
+        ptm.genes <- unique(na.omit(unlist(ptm.genes))) %>%  # Supprimer les NA et aplatir la liste
           sub("_.*", "", .) %>%                    # Supprimer tout après "_"
           unique()   
         p.genes <- unique(na.omit(unlist(p.genes))) %>%  # Supprimer les NA et aplatir la liste
@@ -319,20 +319,20 @@ getLRIntracellNetwork <- function(bsrinf, pval.thres=NULL, qval.thres=NULL,
           sub("_.*", "", .) %>%                    # Supprimer tout après "_"
           unique()   
       }
-      
+
       # cat("\n b \n")
-      PTM.genes <- unique(PTM.genes)
+      ptm.genes <- unique(ptm.genes)
       p.genes <- unique(p.genes)
       dp.genes <- unique(dp.genes)
       #
-      # cat(length(PTM.genes))
+      # cat(length(ptm.genes))
       # cat("\n")
       #pg.corr <- pgCorr(bsrinf)
-      PTMg.corr <- bsrinf@PTMg.corr
+      ptmg.corr <- bsrinf@ptmg.corr
       pg.corr<- bsrinf@pg.corr
       dpg.corr <- bsrinf@dpg.corr
     }
-    
+
     if (!is.null(pval.thres))
         good <- pairs$pval <= pval.thres
     else
@@ -340,28 +340,28 @@ getLRIntracellNetwork <- function(bsrinf, pval.thres=NULL, qval.thres=NULL,
     pairs <- pairs[good,]
     t.genes <- t.genes[good]
     tg.corr <- tg.corr[good]
-    if(PTM.obj){
+    if(ptm.obj){
       # cat("\n c \n")
-      # PTM.genes <- PTM.genes[good]
-      # PTMg.corr <- PTMg.corr[good]
-      # p.genes <- PTM.genes[PTM.genes %in% p.genes]
-      # pg.corr <- PTMg.corr[PTMg.corr %in% pg.corr[good]]
-      # dp.genes <- PTM.genes[PTM.genes %in% dp.genes]
-      # dpg.corr <- PTMg.corr[PTMg.corr %in% dpg.corr]
+      # ptm.genes <- ptm.genes[good]
+      # ptmg.corr <- ptmg.corr[good]
+      # p.genes <- ptm.genes[ptm.genes %in% p.genes]
+      # pg.corr <- ptmg.corr[ptmg.corr %in% pg.corr[good]]
+      # dp.genes <- ptm.genes[ptm.genes %in% dp.genes]
+      # dpg.corr <- ptmg.corr[ptmg.corr %in% dpg.corr]
     }
     if (comp.obj){
         tg.pval <- tgPval(bsrinf)[good]
         tg.logFC <- tgLogFC(bsrinf)[good]
-        # if(PTM.obj){
-        #   PTMg.pval <- PTMg.pval(bsrinf)[good]
-        #   PTMg.logFC <- PTMg.logFC(bsrinf)[good]
+        # if(ptm.obj){
+        #   ptmg.pval <- ptmg.pval(bsrinf)[good]
+        #   ptmg.logFC <- ptmg.logFC(bsrinf)[good]
         #   pg.pval <- pg.pval(bsrinf)[good]
         #   pg.logFC <- pg.logFC(bsrinf)[good]
         #   dpg.pval <- dpg.pval(bsrinf)[good]
         #   dpg.logFC <- dpg.logFC(bsrinf)[good]
         # }
     }
-    
+
 
     pool <- unique(c(pairs$L, pairs$R))
     all.edges <- NULL
@@ -489,7 +489,7 @@ getLRIntracellNetwork <- function(bsrinf, pval.thres=NULL, qval.thres=NULL,
     # cat(sum(g.names%in%p.genes))
     # cat("\n pgenes: ")
     # cat(unlist(p.genes))
-    
+
     g <- igraph::set_vertex_attr(g, name="size", value=node.size)
     g <- igraph::set_vertex_attr(g, name="label", value=g.names)
     g.types <- stats::setNames(rep("downstream.gene", length(g.names)), g.names)
