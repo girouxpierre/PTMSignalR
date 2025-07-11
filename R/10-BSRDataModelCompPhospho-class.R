@@ -662,6 +662,14 @@ setMethod("initialInference", "BSRDataModelCompPTM", function(obj, cmp.name, ran
   inter$PTM.genes <- as.character(inter$PTM.genes)
   inter$addPTM.genes <- as.character(inter$addPTM.genes)
   inter$rmPTM.genes <- as.character(inter$rmPTM.genes)
+         
+  inter$PTM.logFC <- as.character(inter$PTM.logFC)
+  inter$addPTM.logFC <- as.character(inter$addPTM.logFC)
+  inter$rmPTM.logFC <- as.character(inter$rmPTM.logFC)
+         
+  inter$PTM.corr <- as.character(inter$PTM.corr)
+  inter$addPTM.corr <- as.character(inter$addPTM.corr)
+  inter$rmPTM.corr <- as.character(inter$rmPTM.corr)
   PTMg <- strsplit(inter$PTM.genes, ";")
   pg <- strsplit(inter$addPTM.genes, ";")
   dpg <- strsplit(inter$rmPTM.genes, ";")
@@ -687,12 +695,12 @@ setMethod("initialInference", "BSRDataModelCompPTM", function(obj, cmp.name, ran
   pglogFC <- NA
   # cat("\n PTMLFC \n")
   # cat(unlist(inter$PTM.logFC))
-  # pglogFC <- lapply(strsplit(inter$PTM.logFC[!is.na(inter$PTM.logFC)], ";"),
+  # pglogFC <- lapply(strsplit(inter$PTM.logFC[!is.na(inter$addPTM.logFC)], ";"),
   #                   function(x) as.numeric(x))
   pglogFC <- lapply(strsplit(as.character(inter$addPTM.logFC), ";"),
                     function(x) as.numeric(x))
   pgcorr <- NA
-  # pgcorr <- lapply(strsplit(inter$PTM.corr[!is.na(inter$PTM.corr)], ";"),
+  # pgcorr <- lapply(strsplit(inter$PTM.corr[!is.na(inter$addPTM.corr)], ";"),
   #                  function(x) as.numeric(x))
   pgcorr <- lapply(strsplit(as.character(inter$addPTM.corr), ";"),
                    function(x) as.numeric(x))
