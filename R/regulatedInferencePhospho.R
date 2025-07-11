@@ -27,6 +27,7 @@
 #' @importFrom foreach %do% %dopar%
 #' @import stringr
 #' @import doParallel
+#' data(mergedPwCtrl,package='PTMSignalR')
 #' @keywords internal
 .getRegulatedLRPTM <- function(ds, cc, max.pval=0.01, min.logFC=1,
                             neg.receptors=FALSE, restrict.genes=NULL) {
