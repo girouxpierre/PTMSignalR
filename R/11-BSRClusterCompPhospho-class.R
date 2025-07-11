@@ -10,7 +10,7 @@ library(methods)
 #' @slot colB   Column indices for the samples in cluster B.
 #' @slot stats  Comparison statistics A versus B as a data.frame and
 #' containing at least two columns named 'pval' and 'logFC'.
-#' @slot statsPTM  Comparison statistics A versus B as a data.frame and
+#' @slot statsPhospho  Comparison statistics A versus B as a data.frame and
 #' containing at least two columns named 'pval' and 'logFC'.
 #' 
 #' @export
@@ -27,20 +27,20 @@ library(methods)
 #' bsrcc <- defineClusterComp(bsrdm.comp, colA, colB, edger.stats)
 #' bsrdm.comp <- addClusterComp(bsrdm.comp, bsrcc, "my_comparison")
 #' 
-setClass("BSRClusterCompPTM",
+setClass("BSRClusterCompPhospho",
          slots=c(colA="integer",
                  colB="integer",
                  stats="data.frame",
-                 statsPTM="data.frame"
+                 statsPhospho="data.frame"
          ),
          prototype=list(
            colA=as.integer(1:2),
            colB=as.integer(3:4),
            stats=data.frame(pval=c(0.01,0.01),logFC=c(1,-1)),
-           statsPTM=data.frame(pval=c(0.01,0.01),logFC=c(1,-1))
+           statsPhospho=data.frame(pval=c(0.01,0.01),logFC=c(1,-1))
          ))
 
-setValidity("BSRClusterCompPTM",
+setValidity("BSRClusterCompPhospho",
             function(object) {
               if(!is.integer(object@colA))
                 return("colA indices are not all integers")
@@ -59,7 +59,7 @@ setValidity("BSRClusterCompPTM",
             }
 )
 
-setMethod("show", "BSRClusterCompPTM",
+setMethod("show", "BSRClusterCompPhospho",
           function(object) {
             if (length(object@colA) > 5)
               cat("Cluster A columns:", object@colA[1:5], "...\n")
@@ -86,10 +86,10 @@ if (!isGeneric("colA")) {
 #' Cluster A columns accessor
 #'
 #' @name colA
-#' @aliases colA,BSRClusterCompPTM-method
-#' @param x object BSRClusterCompPTM 
+#' @aliases colA,BSRClusterCompPhospho-method
+#' @param x object BSRClusterCompPhospho 
 #' @export
-setMethod("colA", "BSRClusterCompPTM", function(x) x@colA)
+setMethod("colA", "BSRClusterCompPhospho", function(x) x@colA)
 
 if (!isGeneric("colA<-")) {
   if (is.function("colA<-"))
@@ -100,10 +100,10 @@ if (!isGeneric("colA<-")) {
 }
 #' Cluster A columns setter (internal use only)
 #'
-#' @param x object BSRClusterCompPTM 
-#' @param value value to be set for BSRClusterCompPTM
+#' @param x object BSRClusterCompPhospho 
+#' @param value value to be set for BSRClusterCompPhospho
 #' @keywords internal 
-setMethod("colA<-", "BSRClusterCompPTM", function(x,value){
+setMethod("colA<-", "BSRClusterCompPhospho", function(x,value){
   x@colA <- value
   methods::validObject(x)
   x
@@ -120,10 +120,10 @@ if (!isGeneric("colB")) {
 #' Cluster B columns accessor
 #'
 #' @name colB
-#' @aliases colB,BSRClusterCompPTM-method
-#' @param x object BSRClusterCompPTM 
+#' @aliases colB,BSRClusterCompPhospho-method
+#' @param x object BSRClusterCompPhospho 
 #' @export
-setMethod("colB", "BSRClusterCompPTM", function(x) x@colB)
+setMethod("colB", "BSRClusterCompPhospho", function(x) x@colB)
 
 if (!isGeneric("colB<-")) {
   if (is.function("colB<-"))
@@ -134,10 +134,10 @@ if (!isGeneric("colB<-")) {
 }
 #' Cluster B columns setter (internal use only)
 #'
-#' @param x object BSRClusterCompPTM 
-#' @param value value to be set for BSRClusterCompPTM
+#' @param x object BSRClusterCompPhospho 
+#' @param value value to be set for BSRClusterCompPhospho
 #' @keywords internal 
-setMethod("colB<-", "BSRClusterCompPTM", function(x,value){
+setMethod("colB<-", "BSRClusterCompPhospho", function(x,value){
   x@colB <- value
   methods::validObject(x)
   x
@@ -154,10 +154,10 @@ if (!isGeneric("stats")) {
 #' Cluster comparison statistics accessor
 #'
 #' @name stats
-#' @aliases stats,BSRClusterCompPTM-method
-#' @param x BSRClusterCompPTM object
+#' @aliases stats,BSRClusterCompPhospho-method
+#' @param x BSRClusterCompPhospho object
 #' @export
-setMethod("stats", "BSRClusterCompPTM", function(x) x@stats)
+setMethod("stats", "BSRClusterCompPhospho", function(x) x@stats)
 
 if (!isGeneric("stats<-")) {
   if (is.function("stats<-"))
@@ -168,45 +168,45 @@ if (!isGeneric("stats<-")) {
 }
 #' Cluster comparison statistics setter (internal use only)
 #'
-#' @param x object BSRClusterCompPTM 
-#' @param value value to be set for BSRClusterCompPTM
+#' @param x object BSRClusterCompPhospho 
+#' @param value value to be set for BSRClusterCompPhospho
 #' @keywords internal 
-setMethod("stats<-", "BSRClusterCompPTM", function(x,value){
+setMethod("stats<-", "BSRClusterCompPhospho", function(x,value){
   x@stats <- value
   methods::validObject(x)
   x
 })
 
 
-if (!isGeneric("statsPTM")) {
-  if (is.function("statsPTM"))
-    fun <- statsPTM
+if (!isGeneric("statsPhospho")) {
+  if (is.function("statsPhospho"))
+    fun <- statsPhospho
   else
-    fun <- function(x) standardGeneric("statsPTM")
-  setGeneric("statsPTM", fun)
+    fun <- function(x) standardGeneric("statsPhospho")
+  setGeneric("statsPhospho", fun)
 }
 #' Cluster comparison statistics accessor
 #'
-#' @name statsPTM
-#' @aliases statsPTM,BSRClusterCompPTM-method
-#' @param x BSRClusterCompPTM object
+#' @name statsPhospho
+#' @aliases statsPhospho,BSRClusterCompPhospho-method
+#' @param x BSRClusterCompPhospho object
 #' @export
-setMethod("statsPTM", "BSRClusterCompPTM", function(x) x@statsPTM)
+setMethod("statsPhospho", "BSRClusterCompPhospho", function(x) x@statsPhospho)
 
-if (!isGeneric("statsPTM<-")) {
-  if (is.function("statsPTM<-"))
-    fun <- `statsPTM<-`
+if (!isGeneric("statsPhospho<-")) {
+  if (is.function("statsPhospho<-"))
+    fun <- `statsPhospho<-`
   else
-    fun <- function(x, value) standardGeneric("statsPTM<-")
-  setGeneric("statsPTM<-", fun)
+    fun <- function(x, value) standardGeneric("statsPhospho<-")
+  setGeneric("statsPhospho<-", fun)
 }
 #' Cluster comparison statistics setter (internal use only)
 #'
-#' @param x object BSRClusterCompPTM 
-#' @param value value to be set for BSRClusterCompPTM
+#' @param x object BSRClusterCompPhospho 
+#' @param value value to be set for BSRClusterCompPhospho
 #' @keywords internal 
-setMethod("statsPTM<-", "BSRClusterCompPTM", function(x,value){
-  x@statsPTM <- value
+setMethod("statsPhospho<-", "BSRClusterCompPhospho", function(x,value){
+  x@statsPhospho <- value
   methods::validObject(x)
   x
 })
