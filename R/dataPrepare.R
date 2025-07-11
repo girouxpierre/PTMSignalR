@@ -13,9 +13,11 @@
 #' @return NULL
 #'
 #' @export
+#' @import stringr
 #' @examples
 #' cat('resetLRdb')
 #' data(sdc,package='BulkSignalR')
+#' data(mergedPwCtrl,package='PTMSignalR')
 #' resetLRdb(db=data.frame(ligand="A2M", receptor="LRP1"), switch=FALSE)
 resetLRdb <- function(db, switch=FALSE) {
 
