@@ -58,6 +58,8 @@ In the next chunk of code, we describe an application to
 Clear Cell Renal Cell Carcinoma (ccrcc) samples where we compare two clusters 
 of patients.
 
+A general example of BulkSignalR analysis is provided here: https://github.com/jcolinge/BulkSignalR/
+
 ```{r diffmode,eval=FALSE}
 library(PTMSignalR)
 
@@ -65,6 +67,11 @@ data(ccrcc_prot,package='PTMSignalR')
 data(ccrcc_phos,package='PTMSignalR')
 data(ccrcc_clinical,package='PTMSignalR')
 
+#Load data table of phosphorylation events information based on Reactome database
+#Can be changed by the user to adapt to other PTMs or change kinase information
+data(mergedPwCtrl,package='PTMSignalR')
+
+#Identify responders and non responders in proteomics and phosphoproteomics datasets
 protResp <- clinical[clinical$Response=="Responder",2]
 protNoResp <- clinical[clinical$Response=="Non-Responder",2]
 phosResp <- clinical[clinical$Response=="Responder",2]
@@ -94,26 +101,33 @@ rownames(resp.table) <- rownames(dfProt)
 # Differential expression analysis for phosphorylation
 dfPhos_complete <- dfPhosNorm
 dfPhosNorm <- dfPhos_complete[,-c(1,2)]
-diff.respPh <- apply(dfPhosNorm,1, function(x) wilcox.test(x[unlist(phosResp)],x[unlist(phosNoResp)])$p.value)
+suppressWarnings(diff.respPh <- apply(dfPhosNorm,1, function(x) wilcox.test(x[unlist(phosResp)],x[unlist(phosNoResp)])$p.value))
 FCPh <- apply(dfPhosNorm,1,function(x) median(x[unlist(phosResp)], 
                                 na.rm=T)-median(x[unlist(phosNoResp)], na.rm=T))
 resp.tablePh <- data.frame(pval=diff.respPh,logFC=FCPh)
 rownames(resp.tablePh) <- rownames(dfPhosNorm)
 
-bsrdmResp <- prepareDataset(counts = dfProt, PTM = dfPhos_complete, 
+#Prepare dataset
+#single: amino-acid level or whole protein level
+#symbolPh.col: column containing symbols of proteins if amino-acid level
+#pos.col: column containing position of modified amino acid if amino-acid level
+
+bsrdmResp <- prepareDataset(counts = dfProt, phospho = dfPhos_complete, 
                     single = T, symbolPh.col = 1, pos.col = 2, normalize = T, method="TC",min.count=0,min.LR.found=10)
-bsrdm.compResp <- as.BSRDataModelCompPTM(bsrdmResp)
+
+#Create comparison object
+bsrdm.compResp <- as.BSRDataModelCompPhospho(bsrdmResp)
 
 # indices resp vs non resp
-indPhosResp <- which(colnames(bsrdm.compResp@PTM) %in% unlist(phosResp))
-indPhosNoResp <- which(colnames(bsrdm.compResp@PTM) %in% unlist(phosNoResp))
+indPhosResp <- which(colnames(bsrdm.compResp@phospho) %in% unlist(phosResp))
+indPhosNoResp <- which(colnames(bsrdm.compResp@phospho) %in% unlist(phosNoResp))
 
 # define the comparison
 bsrccResp <- defineClusterComp(bsrdm.compResp, indPhosResp, indPhosNoResp, 
                                resp.table, resp.tablePh)
 bsrccResp
 
-bsrdm.compResp <- addClusterCompPTM(bsrdm.compResp,bsrccResp,"resp.versus.all")
+bsrdm.compResp <- addClusterCompPhos(bsrdm.compResp,bsrccResp,"resp.versus.all")
 bsrdm.compResp
 
 # Infer ligand-receptor interactions from the comparison
@@ -123,6 +137,8 @@ bsrinf.comp.resp <- initialInference(bsrdm.compResp,"resp.versus.all",
 bsrinf.comp.resp
 resp.inter <- LRinter(bsrinf.comp.resp)
 
+#Results of onalysis
+head(resp.inter)
 
 
 ```  
