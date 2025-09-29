@@ -384,7 +384,7 @@ setMethod("learnParameters", "BSRDataModelPhospho", function(obj, plot.folder = 
                                                       verbose = T, n.rand.LR = 5L, n.rand.RT = 2L, n.rand.RP = 2L,with.complex = TRUE,
                                                       max.pw.size = 200, min.pw.size = 5, min.positive = 4, quick = FALSE, single=FALSE,
                                                       null.model = c("automatic", "mixedNormal", "normal", "kernelEmpirical",
-                                                                     "empirical", "stable"), filename = "distribution") {
+                                                                     "empirical", "stable"), filename = "distribution", infPhos = F) {
   cat("\n learnParameters - BSRDMP - debut")
   obj@param$n.rand.LR <- as.integer(n.rand.LR)
   if (obj@param$n.rand.LR < 1)
