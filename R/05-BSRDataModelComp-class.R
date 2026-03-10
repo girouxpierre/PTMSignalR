@@ -383,6 +383,7 @@ if (!isGeneric("initialInference")) {
 #'   allowed to be upregulated (FALSE), or up- and downregulated (TRUE).
 #' @param fdr.proc      The procedure for adjusting P-values according to
 #' \code{\link[multtest]{mt.rawp2adjp}}.
+#' @param correction       P-values multiplication correction method
 #' @param reference       Which pathway reference should be used ("REACTOME"
 #'   for Reactome, "GOBP" for GO Biological Process,
 #'   or "REACTOME-GOBP" for both).
@@ -434,7 +435,7 @@ if (!isGeneric("initialInference")) {
 #' # infer ligand-receptor interactions from the comparison
 #' bsrinf <- initialInference(bsrdm.comp,max.pval=1, "random.example")
 #' @importFrom methods new
-setMethod("initialInference", "BSRDataModelComp", function(obj, cmp.name, rank.p=0.55,
+setMethod("initialInference", "BSRDataModelComp", function(obj, cmp.name, rank.p=0.55, correction = c("fisher", "breitwieser", "none"),
                                                          max.pval=0.01, min.logFC=1, neg.receptors=FALSE,
                                                          restrict.genes=NULL, reference=c("REACTOME-GOBP","REACTOME","GOBP"),
                                                          max.pw.size=200, min.pw.size=5, min.positive=4, restrict.pw=NULL,

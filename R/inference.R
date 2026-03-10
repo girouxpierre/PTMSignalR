@@ -334,6 +334,7 @@
 #'
 #' @param pairs         A data frame output by \code{checkReceptorSignaling}.
 #' @param param         A list containing the statistical model parameters.
+#' @param correction         P-value multiplication correction method.
 #' @param rank.p        A number between 0 and 1 defining the rank of the last
 #'   considered target genes.
 #' @param fdr.proc      The procedure for adjusting P-values according to
@@ -342,7 +343,7 @@
 #' @return A data.frame with the data in \code{pairs} complemented with
 #' P-values and adjusted P-values.
 #' @keywords internal
-.pValuesLR <- function(pairs, param, rank.p = 0.75,
+.pValuesLR <- function(pairs, param, rank.p = 0.75, correction = c("fisher", "breitwieser", "none"),
                       fdr.proc = c("BH", "Bonferroni", "Holm", "Hochberg",
                                    "SidakSS", "SidakSD", "BY", "ABH", "TSBH")) {
 
@@ -400,11 +401,49 @@
             # cdf(rank.corr, RT.par). If rank.corr is high, it becomes
             # difficult to get as little as r-1 corr < rank.corr by chance!
             p.rt <- stats::pbinom(r-1, len[k], cdf(rank.corr, RT.par))
+            
+            if(correction == "fisher"){
+              pvals <- c(p.lr, p.rt)
+              
+              X <- -2 * sum(log(pvals))
+              df <- 2 * length(pvals)
+              
+              p_combined <- pchisq(X, df=df, lower.tail=FALSE)
+              
+              pval.corr <- p_combined
+            }
+            if(correction == "breitwieser"){
+              getMultUnifPValues <- function(product,pvals=NULL,n=NULL){
+                
+                if (is.null(n))
+                  return(NULL)
+                
+                if (!is.null(pvals))
+                  if (n == length(pvals))
+                    product <- prod(pvals)
+                else
+                  return(NULL)
+                
+                if (n == 1)
+                  return(product)
+                
+                s <- 1 # for i=0
+                mlp <- -log(product)
+                for (i in 1:(n-1))
+                  s <- s + mlp^i/factorial(i)
+                product*s
+              } # getMultUnifPValues
+              
+              pval.corr <- 1-getMultUnifPValues(pvals = c(p.lr, p.rt), n=2)
+            }
+            else{
+              pval.corr <- p.lr*p.rt
+            }
             res <- rbind(res,data.frame(pairs[i,c("L","R")],
                         LR.corr=pairs[i,"corr"], pw.id=pwid[k],
                         pw.name=pwname[k], rank=r, len=len[k],
                         rank.corr=rank.corr, target.genes=tg[k],
-                        target.corr=spear[k], pval=p.lr*p.rt,
+                        target.corr=spear[k], pval=pval.corr,
                         stringsAsFactors=FALSE))
         }
     }

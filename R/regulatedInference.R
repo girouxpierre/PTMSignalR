@@ -394,7 +394,7 @@
 #' @return A data.frame with the data in \code{pairs} complemented with
 #' P-values and adjusted P-values.
 #' @keywords internal
-.pValuesRegulatedLR <- function(pairs, param, rank.p = 0.75,
+.pValuesRegulatedLR <- function(pairs, param, rank.p = 0.75, correction = c("fisher", "breitwieser", "none"),
                        fdr.proc = c("BH", "Bonferroni", "Holm", "Hochberg",
                                     "SidakSS", "SidakSD", "BY", "ABH", "TSBH")) {
   
@@ -436,13 +436,52 @@
       # 1-rank.pval. If rank.pval is low (i.e., highly significant),
       # it becomes difficult to get as little as r-1 P-values > rank.pval by chance!
       p.rt <- stats::pbinom(r-1, len[k], 1-rank.pval) # cdf is punif here!
+      
+      if(correction == "fisher"){
+        pvals <- c(p.lr, p.rt)
+        
+        X <- -2 * sum(log(pvals))
+        df <- 2 * length(pvals)
+        
+        p_combined <- pchisq(X, df=df, lower.tail=FALSE)
+        
+        pval.corr <- p_combined
+      }
+      if(correction == "breitwieser"){
+        getMultUnifPValues <- function(product,pvals=NULL,n=NULL){
+          
+          if (is.null(n))
+            return(NULL)
+          
+          if (!is.null(pvals))
+            if (n == length(pvals))
+              product <- prod(pvals)
+          else
+            return(NULL)
+          
+          if (n == 1)
+            return(product)
+          
+          s <- 1 # for i=0
+          mlp <- -log(product)
+          for (i in 1:(n-1))
+            s <- s + mlp^i/factorial(i)
+          product*s
+        } # getMultUnifPValues
+        
+        pval.corr <- 1-getMultUnifPValues(pvals = c(p.lr, p.rt), n=2)
+      }
+      else{
+        pval.corr <- p.lr*p.rt
+      }
+      
       res <- rbind(res,data.frame(pairs[i,c("L","R","LR.pval","corr","L.logFC","R.logFC")],
                                   pw.id=pwid[k], pw.name=pwname[k], rank=r,
                                   len=len[k], rank.pval=rank.pval,
                                   rank.corr=rank.corr,
                                   target.genes=tg[k], target.pval=spval[k],
                                   target.logFC=slfc[k], target.corr=spear[k],
-                                  pval=p.lr*p.rt, stringsAsFactors=FALSE))
+                                  pval=pval.corr, stringsAsFactors=FALSE))
     }
   }
   names(res)[4] <- "LR.corr"

@@ -649,7 +649,7 @@
 #' @return A data.frame with the data in \code{pairs} complemented with
 #' P-values and adjusted P-values.
 #' @keywords internal
-.pValuesRegulatedLRphos <- function(pairs, param, rank.p = 0.75,
+.pValuesRegulatedLRphos <- function(pairs, param, rank.p = 0.75, correction = c("fisher", "breitwieser", "none"),
                        fdr.proc = c("BH", "Bonferroni", "Holm", "Hochberg",
                                     "SidakSS", "SidakSD", "BY", "ABH", "TSBH")) {
 
@@ -711,6 +711,44 @@
       # it becomes difficult to get as little as r-1 P-values > rank.pval by chance!
       p.rt <- stats::pbinom(r-1, len[k], 1-rank.pval) # cdf is punif here!
       #cat("1 \n")
+      if(correction == "fisher"){
+        pvals <- c(resMerged$pvalLRT,resMerged$pvalRPTM)
+        
+        X <- -2 * sum(log(pvals))
+        df <- 2 * length(pvals)
+        
+        p_combined <- pchisq(X, df=df, lower.tail=FALSE)
+        
+        resMerged$pval <- p_combined
+      }
+      
+      if(correction == "breitwieser"){
+        getMultUnifPValues <- function(product,pvals=NULL,n=NULL){
+          
+          if (is.null(n))
+            return(NULL)
+          
+          if (!is.null(pvals))
+            if (n == length(pvals))
+              product <- prod(pvals)
+          else
+            return(NULL)
+          
+          if (n == 1)
+            return(product)
+          
+          s <- 1 # for i=0
+          mlp <- -log(product)
+          for (i in 1:(n-1))
+            s <- s + mlp^i/factorial(i)
+          product*s
+        } # getMultUnifPValues
+        
+        resMerged$pval <- 1-getMultUnifPValues(pvals = c(resMerged$pvalLRT, resMerged$pvalRPTM), n=2)
+      }
+      else{
+        resMerged$pval <- resMerged$pvalLRT*resMerged$pvalRPTM
+      }
       res <- rbind(res,data.frame(pairs[i,c("L","R","LR.pval","corr","L.logFC","R.logFC")],
                                   pw.id=pwid[k], pw.name=pwname[k], rank=r,
                                   len=len[k], rank.pval=rank.pval,
@@ -1012,6 +1050,45 @@
   resMerged <- resMerged[!duplicated(resMerged), ]
   resMerged$pvalRPTM[is.na(resMerged$pvalRPTM)] <- 1
   resMerged$pval <- resMerged$pvalLRT*resMerged$pvalRPTM
+  
+  if(correction == "fisher"){
+    pvals <- c(resMerged$pvalLRT,resMerged$pvalRPTM)
+    
+    X <- -2 * sum(log(pvals))
+    df <- 2 * length(pvals)
+    
+    p_combined <- pchisq(X, df=df, lower.tail=FALSE)
+    
+    resMerged$pval <- p_combined
+  }
+  
+  if(correction == "breitwieser"){
+    getMultUnifPValues <- function(product,pvals=NULL,n=NULL){
+      
+      if (is.null(n))
+        return(NULL)
+      
+      if (!is.null(pvals))
+        if (n == length(pvals))
+          product <- prod(pvals)
+      else
+        return(NULL)
+      
+      if (n == 1)
+        return(product)
+      
+      s <- 1 # for i=0
+      mlp <- -log(product)
+      for (i in 1:(n-1))
+        s <- s + mlp^i/factorial(i)
+      product*s
+    } # getMultUnifPValues
+    
+    resMerged$pval <- 1-getMultUnifPValues(pvals = c(resMerged$pvalLRT, resMerged$pvalRPTM), n=2)
+  }
+  else{
+    resMerged$pval <- resMerged$pvalLRT*resMerged$pvalRPTM
+  }
 
   # avoid the impossible
   key <- paste(resMerged$L, resMerged$R, resMerged$pw.id, sep="||")

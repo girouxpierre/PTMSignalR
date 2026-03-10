@@ -650,6 +650,7 @@ if (!isGeneric("initialInference")) {
 #' the ligand and the receptor.
 #' @param fdr.proc      The procedure for adjusting P-values according to
 #' \code{\link[multtest]{mt.rawp2adjp}}.
+#' @param correction       P-values multiplication correction method
 #' @param reference       Which pathway reference should be used ("REACTOME"
 #'   for Reactome, "GOBP" for GO Biological Process,
 #'   or "REACTOME-GOBP" for both).
@@ -704,7 +705,7 @@ if (!isGeneric("initialInference")) {
 #' bsrinf
 #' @importFrom methods new
 setMethod("initialInference", "BSRDataModelPhospho", function(obj, rank.p=0.55,
-                                                       min.cor = 0.25,
+                                                       min.cor = 0.25, correction = c("fisher", "breitwieser", "none"),
                                                        restrict.genes = NULL, reference=c("REACTOME"),
                                                        max.pw.size=NULL, min.pw.size=NULL, min.positive=NULL, restrict.pw=NULL,
                                                        with.complex=NULL,infPhos=NULL, fdr.proc=c("BH","Bonferroni","Holm","Hochberg",
