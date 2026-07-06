@@ -141,10 +141,6 @@
   else
     correlated.int <- control.int
 
-  cat("\n rownames(rncounts) : ")
-  cat(rownames(rncounts)[1:3])
-  cat("\n rownames(phospho) : ")
-  cat(rownames(phospho)[1:3])
   #rncounts <- rncounts[rownames(rncounts) %in% rownames(phospho),]
   rncounts <- rncounts[,colnames(rncounts) %in% colnames(phospho)]
   rncounts <- rncounts[,order(as.vector(colnames(rncounts)))]
@@ -171,9 +167,9 @@
       best.2nd <- foreach::foreach(p=pa,.combine=rbind) %do% {
         # best.2nd <- NULL
         # for (p in pa){
-        int <- SingleCellSignalR::PwC_ReactomeKEGG[
-          SingleCellSignalR::PwC_ReactomeKEGG$a.gn %in% pw[pw[[id.col]]==p,gene.col] &
-            SingleCellSignalR::PwC_ReactomeKEGG$b.gn %in% pw[pw[[id.col]]==p,gene.col],
+        int <- PwC_ReactomeKEGG[
+          PwC_ReactomeKEGG$a.gn %in% pw[pw[[id.col]]==p,gene.col] &
+            PwC_ReactomeKEGG$b.gn %in% pw[pw[[id.col]]==p,gene.col],
         ]
         directed <- int$type %in% directed.int
 
@@ -202,9 +198,6 @@
           # eliminate ligands of the receptor if present
           target.genes <- setdiff(target.genes, receptor.ligands)
 
-
-          # cat("\n colnames(corrgp)[1:3] : ")
-          # cat(colnames(corrgp)[1:3])
 
           target.genes.phos.name <- target.genes.phos.pos <- unique(subset(mergedPwCtrl, PathwayName==p & source %in% c(target.genes,receptor.ligands,r) & target %in% target.genes & relationType %in% phosph.int.pwc)$target)
           target.genes.dephos.name <- target.genes.dephos.pos <- unique(subset(mergedPwCtrl, PathwayName==p & source %in% c(target.genes,receptor.ligands,r) & target %in% target.genes & relationType %in% dephosph.int.pwc)$target)
@@ -238,22 +231,20 @@
 
 
             ## phospho ##
-            # cat("\n target.genes.phos.pos : ") #OK
-            # cat(target.genes.phos.pos)
-            #cat("\n")
+
             phosTheoricalPres <- unique(target.genes.phos.pos[target.genes.phos.pos %in% colnames(corrgp)])
-            if(length(phosTheoricalPres>0)){
-              cat("\n phosThPres \n")
-              cat(unlist(phosTheoricalPres))
-            }
+            # if(length(phosTheoricalPres>0)){
+            #   cat("\n phosThPres \n")
+            #   cat(unlist(phosTheoricalPres))
+            # }
             #si presence de ABC_NA on prend toutes les positions de ABC
             tmpNA <- grepl("_NA", target.genes.phos.pos, fixed = TRUE)
             if(sum(tmpNA > 0)){
               target.genes.phos.posNA <- target.genes.phos.pos[tmpNA]
               target.genes.phos.nameNA <- target.genes.phos.name[tmpNA]
               #on prend toutes les pos si NA
-              cat("\n target.genes.phos.posNA \n")
-              cat(unlist(target.genes.phos.posNA))
+              # cat("\n target.genes.phos.posNA \n")
+              # cat(unlist(target.genes.phos.posNA))
               listPos <- c()
               for(gp in target.genes.phos.nameNA){
                 tmpCol <- grepl(paste0(gp,"_"), colnames(corrgp))
@@ -267,26 +258,26 @@
               #target.genes.phos.pos <- phosTheoricalPres
             }
             target.genes.phos.pos <- phosTheoricalPres
-            if(length(phosTheoricalPres>0)){
-              cat("\n target.genes.phos.pos \n")
-              cat(unlist(target.genes.phos.pos))
-            }
+            # if(length(phosTheoricalPres>0)){
+            #   cat("\n target.genes.phos.pos \n")
+            #   cat(unlist(target.genes.phos.pos))
+            # }
 
             ## dephospho ##
 
             dephosTheoricalPres <- unique(target.genes.dephos.pos[target.genes.dephos.pos %in% colnames(corrgp)])
-            if(length(dephosTheoricalPres>0)){
-              cat("\n dephosThPres \n")
-              cat(unlist(dephosTheoricalPres))
-            }
+            # if(length(dephosTheoricalPres>0)){
+            #   cat("\n dephosThPres \n")
+            #   cat(unlist(dephosTheoricalPres))
+            # }
             #si presence de ABC_NA on prend toutes les positions de ABC
             tmpNA <- grepl("_NA", target.genes.dephos.pos, fixed = TRUE)
             if(sum(tmpNA > 0)){
               target.genes.dephos.posNA <- target.genes.dephos.pos[tmpNA]
               target.genes.dephos.nameNA <- target.genes.dephos.name[tmpNA]
               #on prend toutes les pos si NA
-              cat("\n target.genes.dephos.posNA \n")
-              cat(unlist(target.genes.dephos.posNA))
+              # cat("\n target.genes.dephos.posNA \n")
+              # cat(unlist(target.genes.dephos.posNA))
               listPos <- c()
               for(gp in target.genes.dephos.nameNA){
                 tmpCol <- grepl(paste0(gp,"_"), colnames(corrgp))
@@ -302,10 +293,10 @@
               #target.genes.phos.pos <- phosTheoricalPres
             }
             target.genes.dephos.pos <- dephosTheoricalPres
-            if(length(dephosTheoricalPres>0)){
-              cat("\n target.genes.dephos.pos \n")
-              cat(unlist(target.genes.dephos.pos))
-            }
+            # if(length(dephosTheoricalPres>0)){
+            #   cat("\n target.genes.dephos.pos \n")
+            #   cat(unlist(target.genes.dephos.pos))
+            # }
             # target.genes.phos.posNA <- target.genes.phos.pos[tmpNA]
             # target.genes.phos.nameNA <- target.genes.phos.name[tmpNA]
 
@@ -335,12 +326,10 @@
               target.genes.phos.pos <- target.genes.phos.pos[op]
               cp <- corrgp[r, target.genes.phos.pos]
               len.phos <- length(cp)
-              cat("\n pTP \n")
             }
             else{
               cp <- pvp <- lfcp <- target.genes.phos.pos <- c(NA)
               len.phos <- 0
-              #cat("\n pas pTP \n")
             }
 
 
@@ -354,12 +343,10 @@
               target.genes.dephos.pos <- target.genes.dephos.pos[odp]
               cdp <- corrgp[r, target.genes.dephos.pos]
               len.dephos <- length(cdp)
-              cat("\n dpTP \n")
             }
             else{
               cdp <- pvdp <- lfcdp <- target.genes.dephos.pos <- c(NA)
               len.dephos <- 0
-              #cat("\n pas pTP \n")
             }
             pvptm <- c(pvp, pvdp)
             lfcptm <- c(lfcp, lfcdp)
@@ -649,12 +636,13 @@
 #' @return A data.frame with the data in \code{pairs} complemented with
 #' P-values and adjusted P-values.
 #' @keywords internal
-.pValuesRegulatedLRphos <- function(pairs, param, rank.p = 0.75, correction = c("fisher", "breitwieser", "none"),
+.pValuesRegulatedLRphos <- function(pairs, param, rank.p = 0.75, correction = c("none", "fisher", "breitwieser"),
                        fdr.proc = c("BH", "Bonferroni", "Holm", "Hochberg",
                                     "SidakSS", "SidakSD", "BY", "ABH", "TSBH")) {
 
   if (rank.p < 0 || rank.p > 1)
     stop("rank.p must lie in [0;1]")
+  correction <- match.arg(correction)
   fdr.proc <- match.arg(fdr.proc)
   if(is.null(pairs))
     stop("Dataframe `pairs` from `.checkRegulatedReceptorSignaling` is NULL.")
@@ -710,45 +698,6 @@
       # 1-rank.pval. If rank.pval is low (i.e., highly significant),
       # it becomes difficult to get as little as r-1 P-values > rank.pval by chance!
       p.rt <- stats::pbinom(r-1, len[k], 1-rank.pval) # cdf is punif here!
-      #cat("1 \n")
-      if(correction == "fisher"){
-        pvals <- c(resMerged$pvalLRT,resMerged$pvalRPTM)
-        
-        X <- -2 * sum(log(pvals))
-        df <- 2 * length(pvals)
-        
-        p_combined <- pchisq(X, df=df, lower.tail=FALSE)
-        
-        resMerged$pval <- p_combined
-      }
-      
-      if(correction == "breitwieser"){
-        getMultUnifPValues <- function(product,pvals=NULL,n=NULL){
-          
-          if (is.null(n))
-            return(NULL)
-          
-          if (!is.null(pvals))
-            if (n == length(pvals))
-              product <- prod(pvals)
-          else
-            return(NULL)
-          
-          if (n == 1)
-            return(product)
-          
-          s <- 1 # for i=0
-          mlp <- -log(product)
-          for (i in 1:(n-1))
-            s <- s + mlp^i/factorial(i)
-          product*s
-        } # getMultUnifPValues
-        
-        resMerged$pval <- 1-getMultUnifPValues(pvals = c(resMerged$pvalLRT, resMerged$pvalRPTM), n=2)
-      }
-      else{
-        resMerged$pval <- resMerged$pvalLRT*resMerged$pvalRPTM
-      }
       res <- rbind(res,data.frame(pairs[i,c("L","R","LR.pval","corr","L.logFC","R.logFC")],
                                   pw.id=pwid[k], pw.name=pwname[k], rank=r,
                                   len=len[k], rank.pval=rank.pval,
@@ -789,10 +738,7 @@
 
           posPh <- unlist(strsplit(ptmg[k],split=";")) %in% unlist(strsplit(pg[k],split=";"))
           posDePh <- unlist(strsplit(ptmg[k],split=";")) %in% unlist(strsplit(dpg[k],split=";"))
-          cat("\n posPh \n")
-          cat(unlist(posPh))
-          cat("\n posDePh \n")
-          cat(unlist(posDePh))
+
 
           lenp <- sum(posPh)
           if(lenp > 0){
@@ -844,59 +790,59 @@
           }
 
 
-          cat("\n 4 \n")
-          cat(unlist(pairs[i,c("L","R","LR.pval","corr","L.logFC","R.logFC")]))
-          cat("\n \n ptm \n")
-          cat("pwid[k]-", pwid[k], "\n", 
-              "pwname[k]-",pwname[k], "\n", 
-              "r-", r, "\n",
-              "lenptm[k]-",lenptm[k], "\n", 
-              "rank.pvalptm-", rank.pvalptm, "\n",
-              "rank.corrptm-", rank.corrptm, "\n",
-              "ptmg[k]-", ptmg[k], " : ", length(ptmg[k]), "\n", 
-              "spvalptm[k]-", spvalptm[k], " : ", length(spvalptm[k]), "\n", 
-              "spvalsptm-", spvalsptm, " : ", length(spvalsptm), "\n", 
-              "slfcptm[k]-", slfcptm[k], " : ", length(slfcptm[k]), "\n", 
-              "slfcsptm-", slfcsptm, " : ", length(slfcsptm),  "\n", #pb la
-              "spearsptm-", spearsptm, "\n",
-              p.rptm) 
-          cat("\n \n p \n")
-          cat(lenp, "\n", #pas coherent
-              # rank.pvalp, "\n",#pas coherent
-              # rank.corrp, "\n",#pas coherent
-              phospho.genes, " : ", length(phospho.genes), "\n", 
-              phospho.pval, " : ", length(phospho.pval), "\n", 
-              phospho.logFC, " : ", length(phospho.logFC), "\n", 
-              phospho.corr, "\n")#pas coherent
-          cat("\n \n dp \n")
-          cat(lendp, "\n", 
-              # rank.pvaldp, "\n",
-              # rank.corrdp, "\n",
-              dephospho.genes, "\n", dephospho.pval, "\n",
-              dephospho.logFC, "\n", dephospho.corr, "\n")
-          cat(nrow(resp),",", nrow(pairs[i,c("L","R","LR.pval","corr","L.logFC","R.logFC")]), ",")
-          cat(nrow(data.frame(
-                                pw.id=pwid[k], pw.name=pwname[k], rank=r,
-                                lenptm=lenptm[k], rank.pvalptm=rank.pvalptm,
-                                rank.corrptm=rank.corrptm,
-                                ptm.genes=ptmg[k], ptm.pval=spvalptm[k],
-                                ptm.logFC=slfcptm[k], ptm.corr=spearptm[k],
-                                pvalRPTM=p.rptm,
+          # cat("\n 4 \n")
+          # cat(unlist(pairs[i,c("L","R","LR.pval","corr","L.logFC","R.logFC")]))
+          # cat("\n \n ptm \n")
+          # cat("pwid[k]-", pwid[k], "\n", 
+          #     "pwname[k]-",pwname[k], "\n", 
+          #     "r-", r, "\n",
+          #     "lenptm[k]-",lenptm[k], "\n", 
+          #     "rank.pvalptm-", rank.pvalptm, "\n",
+          #     "rank.corrptm-", rank.corrptm, "\n",
+          #     "ptmg[k]-", ptmg[k], " : ", length(ptmg[k]), "\n", 
+          #     "spvalptm[k]-", spvalptm[k], " : ", length(spvalptm[k]), "\n", 
+          #     "spvalsptm-", spvalsptm, " : ", length(spvalsptm), "\n", 
+          #     "slfcptm[k]-", slfcptm[k], " : ", length(slfcptm[k]), "\n", 
+          #     "slfcsptm-", slfcsptm, " : ", length(slfcsptm),  "\n", #pb la
+          #     "spearsptm-", spearsptm, "\n",
+          #     p.rptm) 
+          # cat("\n \n p \n")
+          # cat(lenp, "\n", #pas coherent
+          #     # rank.pvalp, "\n",#pas coherent
+          #     # rank.corrp, "\n",#pas coherent
+          #     phospho.genes, " : ", length(phospho.genes), "\n", 
+          #     phospho.pval, " : ", length(phospho.pval), "\n", 
+          #     phospho.logFC, " : ", length(phospho.logFC), "\n", 
+          #     phospho.corr, "\n")#pas coherent
+          # cat("\n \n dp \n")
+          # cat(lendp, "\n", 
+          #     # rank.pvaldp, "\n",
+          #     # rank.corrdp, "\n",
+          #     dephospho.genes, "\n", dephospho.pval, "\n",
+          #     dephospho.logFC, "\n", dephospho.corr, "\n")
+          # cat(nrow(resp),",", nrow(pairs[i,c("L","R","LR.pval","corr","L.logFC","R.logFC")]), ",")
+          # cat(nrow(data.frame(
+          #                       pw.id=pwid[k], pw.name=pwname[k], rank=r,
+          #                       lenptm=lenptm[k], rank.pvalptm=rank.pvalptm,
+          #                       rank.corrptm=rank.corrptm,
+          #                       ptm.genes=ptmg[k], ptm.pval=spvalptm[k],
+          #                       ptm.logFC=slfcptm[k], ptm.corr=spearptm[k],
+          #                       pvalRPTM=p.rptm,
                                 
-                                lenp=lenp, 
-                                # rank.pvalp=rank.pvalp,
-                                # rank.corrp=rank.corrp,
-                                phospho.genes=phospho.genes, phospho.pval=phospho.pval,
-                                phospho.logFC=phospho.logFC, phospho.corr=phospho.corr,
-                                #pvalRP=pvalRP,
+          #                       lenp=lenp, 
+          #                       # rank.pvalp=rank.pvalp,
+          #                       # rank.corrp=rank.corrp,
+          #                       phospho.genes=phospho.genes, phospho.pval=phospho.pval,
+          #                       phospho.logFC=phospho.logFC, phospho.corr=phospho.corr,
+          #                       #pvalRP=pvalRP,
                                 
-                                lendp=lendp, 
-                                # rank.pvaldp=rank.pvaldp,
-                                # rank.corrdp=rank.corrdp,
-                                dephospho.genes=dephospho.genes, dephospho.pval=dephospho.pval,
-                                dephospho.logFC=dephospho.logFC, dephospho.corr=dephospho.corr,
-                                #pvalRdP=pvalRdP,
-                                stringsAsFactors=FALSE)))
+          #                       lendp=lendp, 
+          #                       # rank.pvaldp=rank.pvaldp,
+          #                       # rank.corrdp=rank.corrdp,
+          #                       dephospho.genes=dephospho.genes, dephospho.pval=dephospho.pval,
+          #                       dephospho.logFC=dephospho.logFC, dephospho.corr=dephospho.corr,
+          #                       #pvalRdP=pvalRdP,
+          #                       stringsAsFactors=FALSE)))
           resp <- rbind(resp,data.frame(pairs[i,c("L","R","LR.pval","corr","L.logFC","R.logFC")],
                                         pw.id=pwid[k], pw.name=pwname[k], rank=r,
                                         lenptm=lenptm[k], rank.pvalptm=rank.pvalptm,
@@ -956,51 +902,51 @@
       #   if(length(pg[k]) == 0){
       #     p.rp <- 1
       #   }
-        cat("3 \n")
-      cat("\n", ncol(resp), "\n", colnames(resp))
-      cat("\n", ncol(data.frame(pairs[i,c("L","R","LR.pval","corr","L.logFC","R.logFC")],
-                                pw.id=pwid[k], pw.name=pwname[k], rank=r,
+      #   cat("3 \n")
+      # cat("\n", ncol(resp), "\n", colnames(resp))
+      # cat("\n", ncol(data.frame(pairs[i,c("L","R","LR.pval","corr","L.logFC","R.logFC")],
+      #                           pw.id=pwid[k], pw.name=pwname[k], rank=r,
                                 
-                                lenptm=0, rank.pvalptm=NA,
-                                rank.corrptm=NA,
-                                ptm.genes=NA, ptm.pval=1,
-                                ptm.logFC=NA, ptm.corr=NA,
-                                pvalRPTM=1,
+      #                           lenptm=0, rank.pvalptm=NA,
+      #                           rank.corrptm=NA,
+      #                           ptm.genes=NA, ptm.pval=1,
+      #                           ptm.logFC=NA, ptm.corr=NA,
+      #                           pvalRPTM=1,
                                 
-                                lenp=0, 
-                                # rank.pvalp=NA,
-                                # rank.corrp=NA,
-                                phospho.genes=NA, phospho.pval=1,
-                                phospho.logFC=NA, phospho.corr=NA,
-                                pvalRP=1,
+      #                           lenp=0, 
+      #                           # rank.pvalp=NA,
+      #                           # rank.corrp=NA,
+      #                           phospho.genes=NA, phospho.pval=1,
+      #                           phospho.logFC=NA, phospho.corr=NA,
+      #                           pvalRP=1,
                                 
-                                lendp=0, 
-                                # rank.pvaldp=NA,
-                                # rank.corrdp=NA,
-                                dephospho.genes=NA, dephospho.pval=1,
-                                dephospho.logFC=NA, dephospho.corr=NA,
-                                pvalRdP=1,stringsAsFactors=FALSE)), "\n", colnames(data.frame(pairs[i,c("L","R","LR.pval","corr","L.logFC","R.logFC")],
-                                                                                              pw.id=pwid[k], pw.name=pwname[k], rank=r,
+      #                           lendp=0, 
+      #                           # rank.pvaldp=NA,
+      #                           # rank.corrdp=NA,
+      #                           dephospho.genes=NA, dephospho.pval=1,
+      #                           dephospho.logFC=NA, dephospho.corr=NA,
+      #                           pvalRdP=1,stringsAsFactors=FALSE)), "\n", colnames(data.frame(pairs[i,c("L","R","LR.pval","corr","L.logFC","R.logFC")],
+      #                                                                                         pw.id=pwid[k], pw.name=pwname[k], rank=r,
                                                                                               
-                                                                                              lenptm=0, rank.pvalptm=NA,
-                                                                                              rank.corrptm=NA,
-                                                                                              ptm.genes=NA, ptm.pval=1,
-                                                                                              ptm.logFC=NA, ptm.corr=NA,
-                                                                                              pvalRPTM=1,
+      #                                                                                         lenptm=0, rank.pvalptm=NA,
+      #                                                                                         rank.corrptm=NA,
+      #                                                                                         ptm.genes=NA, ptm.pval=1,
+      #                                                                                         ptm.logFC=NA, ptm.corr=NA,
+      #                                                                                         pvalRPTM=1,
                                                                                               
-                                                                                              lenp=0, 
-                                                                                              # rank.pvalp=NA,
-                                                                                              # rank.corrp=NA,
-                                                                                              phospho.genes=NA, phospho.pval=1,
-                                                                                              phospho.logFC=NA, phospho.corr=NA,
-                                                                                              pvalRP=1,
+      #                                                                                         lenp=0, 
+      #                                                                                         # rank.pvalp=NA,
+      #                                                                                         # rank.corrp=NA,
+      #                                                                                         phospho.genes=NA, phospho.pval=1,
+      #                                                                                         phospho.logFC=NA, phospho.corr=NA,
+      #                                                                                         pvalRP=1,
                                                                                               
-                                                                                              lendp=0, 
-                                                                                              # rank.pvaldp=NA,
-                                                                                              # rank.corrdp=NA,
-                                                                                              dephospho.genes=NA, dephospho.pval=1,
-                                                                                              dephospho.logFC=NA, dephospho.corr=NA,
-                                                                                              pvalRdP=1,stringsAsFactors=FALSE)))
+      #                                                                                         lendp=0, 
+      #                                                                                         # rank.pvaldp=NA,
+      #                                                                                         # rank.corrdp=NA,
+      #                                                                                         dephospho.genes=NA, dephospho.pval=1,
+      #                                                                                         dephospho.logFC=NA, dephospho.corr=NA,
+      #                                                                                         pvalRdP=1,stringsAsFactors=FALSE)))
         resp <- rbind(resp,data.frame(pairs[i,c("L","R","LR.pval","corr","L.logFC","R.logFC")],
                                       pw.id=pwid[k], pw.name=pwname[k], rank=r,
 
@@ -1032,7 +978,7 @@
 
   resMerged <- merge(res, resp, by=c("L","R","pw.id"), all=T) #maybe remove duplicated columns
 
-  cat("\n",unlist(colnames(resMerged)),"\n")
+  #cat("\n",unlist(colnames(resMerged)),"\n")
                           # L R pw.id LR.pval.x LR.corr.x L.logFC.x R.logFC.x pw.name.x rank.x 
                           # len rank.pval rank.corr target.genes target.pval 
                           # target.logFC target.corr pvalLRT 
@@ -1099,7 +1045,7 @@
   rawp <- resMerged$pval
   adj <- multtest::mt.rawp2adjp(rawp,fdr.proc)
   resMerged$qval <- adj$adjp[order(adj$index),fdr.proc]
-  cat("\n",unlist(colnames(resMerged)))
+  #cat("\n",unlist(colnames(resMerged)))
                               # L R pw.id LR.pval.x LR.corr.x L.logFC.x R.logFC.x pw.name.x rank.x 
                               # len rank.pval rank.corr target.genes target.pval 
                               # target.logFC target.corr pvalLRT 

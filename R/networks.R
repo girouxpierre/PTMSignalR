@@ -174,9 +174,9 @@ getLRNetwork <- function(bsrinf, pval.thres=NULL, qval.thres=NULL,
     a.iter <- data.frame(from=pairs$L[i], to=r, edge.type="LR",
                          stringsAsFactors=FALSE)
     genes.in.pw <- pw[pw[[id.col]]==p,gene.col]
-    int <- SingleCellSignalR::PwC_ReactomeKEGG[
-      SingleCellSignalR::PwC_ReactomeKEGG$a.gn %in% genes.in.pw &
-        SingleCellSignalR::PwC_ReactomeKEGG$b.gn %in% genes.in.pw,]
+    int <- PwC_ReactomeKEGG[
+      PwC_ReactomeKEGG$a.gn %in% genes.in.pw &
+        PwC_ReactomeKEGG$b.gn %in% genes.in.pw,]
     directed <- int$type %in% directed.int
     ret <- int[!directed,c("b.gn", "a.gn")]
     names(ret) <- c("a.gn", "b.gn")
@@ -197,9 +197,9 @@ getLRNetwork <- function(bsrinf, pval.thres=NULL, qval.thres=NULL,
             for (k in 2:length(vertices)){
               from <- igraph::V(g)$name[vertices[k-1]]
               to <- igraph::V(g)$name[vertices[k]]
-              edge.type <- SingleCellSignalR::PwC_ReactomeKEGG[
-                SingleCellSignalR::PwC_ReactomeKEGG$a.gn==from &
-                  SingleCellSignalR::PwC_ReactomeKEGG$b.gn==to,
+              edge.type <- PwC_ReactomeKEGG[
+                PwC_ReactomeKEGG$a.gn==from &
+                  PwC_ReactomeKEGG$b.gn==to,
                 "type"][1]
               a.iter <- rbind(a.iter, data.frame(from=from,to=to,
                                                  edge.type=edge.type,
@@ -308,7 +308,6 @@ getLRIntracellNetwork <- function(bsrinf, pval.thres=NULL, qval.thres=NULL,
 
       #
       if(sum(grepl("_", ptm.genes)) > 0){
-        cat("\n a \n")
         ptm.genes <- unique(na.omit(unlist(ptm.genes))) %>%  # Supprimer les NA et aplatir la liste
           sub("_.*", "", .) %>%                    # Supprimer tout après "_"
           unique()   
@@ -320,14 +319,10 @@ getLRIntracellNetwork <- function(bsrinf, pval.thres=NULL, qval.thres=NULL,
           unique()   
       }
 
-      # cat("\n b \n")
       ptm.genes <- unique(ptm.genes)
       p.genes <- unique(p.genes)
       dp.genes <- unique(dp.genes)
-      #
-      # cat(length(ptm.genes))
-      # cat("\n")
-      #pg.corr <- pgCorr(bsrinf)
+
       ptmg.corr <- bsrinf@ptmg.corr
       pg.corr<- bsrinf@pg.corr
       dpg.corr <- bsrinf@dpg.corr
@@ -395,7 +390,7 @@ getLRIntracellNetwork <- function(bsrinf, pval.thres=NULL, qval.thres=NULL,
                         pos.targets, neg.targets, tg.pval.react, max.pval,
                         tg.logFC.react, min.logFC)
     }
-    cat(unlist(all.edges))
+    
 
     # GOBP
     i.go <- grep("^GO:", pairs$pw.id)
@@ -439,8 +434,7 @@ getLRIntracellNetwork <- function(bsrinf, pval.thres=NULL, qval.thres=NULL,
     duppl <- duplicated(ref)
     if (sum(duppl)>0)
         all.edges <- all.edges[!duppl,] # some duplicates remain, eliminate
-    cat("\n \n blablabla \n \n")
-    cat(unlist(all.edges))
+
     # build graph
     directed.int <- c("controls-state-change-of", "catalysis-precedes",
                       "controls-expression-of","controls-transport-of",
@@ -479,16 +473,7 @@ getLRIntracellNetwork <- function(bsrinf, pval.thres=NULL, qval.thres=NULL,
     # }
     p.genes <- unique(p.genes)
     dp.genes <- unique(dp.genes)
-    # cat(length(p.genes))
-    # cat("\n pgenes: ")
-    # cat(unlist(p.genes))
-    # cat("\n in? ")
-    # cat(sum(g.names%in%p.genes))
-    # cat("\n")
-    # cat("\n pgenes: ")
-    # cat(sum(g.names%in%p.genes))
-    # cat("\n pgenes: ")
-    # cat(unlist(p.genes))
+
 
     g <- igraph::set_vertex_attr(g, name="size", value=node.size)
     g <- igraph::set_vertex_attr(g, name="label", value=g.names)

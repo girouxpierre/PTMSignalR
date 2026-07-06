@@ -1,7 +1,7 @@
 Package: PTMSignalR
 Type: Package
 Title: Integrate Post-Translationnal Modifications to infer Ligand-Receptor Interactions
-Version: 0.0.9
+Version: 0.0.10
 Authors@R: c(
     person("Jacques","Colinge",email="jacques.colinge@inserm.fr",role="aut",comment = c(ORCID = "0000-0003-2466-4824")),
     person("Pierre","Giroux",email="girouxpierre3@gmail.com",role="cre",comment = c(ORCID = "0009-0006-3142-318X")))
@@ -33,7 +33,6 @@ Imports:
     multtest,
     igraph,
     SingleCellSignalR,
-    orthogene,
     stabledist,
     circlize (>= 0.4.14),
     ComplexHeatmap (>= 2.0.0),
@@ -42,11 +41,12 @@ Imports:
     stringr,
     tidyverse,
     RANN
-Suggests: 
+Suggests:
     knitr,
     grid,
     dplyr,
     markdown,
-    rmarkdown
+    rmarkdown,
+    orthogene
 RoxygenNote: 7.2.3
 VignetteBuilder: knitr

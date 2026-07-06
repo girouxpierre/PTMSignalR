@@ -653,8 +653,7 @@ setMethod("initialInference", "BSRDataModelCompPhospho", function(obj, cmp.name,
   inf.param$rank.p <- rank.p
   #inter <- .pValuesRegulatedLRphos(pairs, param(obj), rank.p=rank.p, fdr.proc=fdr.proc)
   inter <- .pValuesRegulatedLRphos(pairs, param(obj), rank.p=rank.p, fdr.proc=fdr.proc)
-  cat("\n")
-  cat(unlist(colnames(inter)))
+
 
   ligands <- strsplit(inter$L, ";")
   receptors <- strsplit(inter$R, ";")
@@ -665,16 +664,14 @@ setMethod("initialInference", "BSRDataModelCompPhospho", function(obj, cmp.name,
   tgpval <- lapply(strsplit(inter$target.pval, ";"),
                    function(x) as.numeric(x))
 
-  # cat("\n protLFC \n")
-  # cat(unlist(inter$target.logFC))
+
   tglogFC <- lapply(strsplit(inter$target.logFC, ";"),
                     function(x) as.numeric(x))
   tgcorr <- lapply(strsplit(inter$target.corr, ";"),
                    function(x) as.numeric(x))
 
   ptmglogFC <- NA
-  # cat("\n ptmLFC \n")
-  # cat(unlist(inter$ptm.logFC))
+
   ptmglogFC <- lapply(strsplit(inter$ptm.logFC[!is.na(inter$ptm.logFC)], ";"),
                     function(x) as.numeric(x))
   ptmgcorr <- NA

@@ -164,12 +164,14 @@ prepareDataset <- function(counts, phospho = NULL, normalize = TRUE, symbol.col 
           # symPos <- matrix()
           # symPos <- phospho[,c(symbolPh.col,pos.col)]
           phospho <- phospho[,-c(symbolPh.col,pos.col)]
-          if(symbolsPh == pos)
-            rownames(phospho) <- symbolsPh
-          else
-            rownames(phospho) <- paste0(symbolsPh, "_", pos)
-          cat(paste0("\n ", head(rownames(phospho)), "\n"))
-          cat(paste0("\n ", head(symPos), "\n"))
+          # per-row: whole-protein level (symbol == position) keeps the bare
+          # symbol, amino-acid level uses "SYMBOL_pos". Must be vectorized:
+          # a scalar if() here errors when nrow(phospho) > 1.
+          rownames(phospho) <- ifelse(symbolsPh == pos,
+                                      symbolsPh,
+                                      paste0(symbolsPh, "_", pos))
+          # cat(paste0("\n ", head(rownames(phospho)), "\n"))
+          # cat(paste0("\n ", head(symPos), "\n"))
         }
         else{
           if (!is.null(bad)){
@@ -209,25 +211,17 @@ prepareDataset <- function(counts, phospho = NULL, normalize = TRUE, symbol.col 
     if (single){
       pos <- as.character(phospho[, pos.col])
       symPos <- data.matrix(cbind(symbolsPh, as.numeric(pos)))
-      cat(paste0("symbolsPh: \n ", symbolsPh[1:5], "\n"))
-      cat(paste0("pos: \n ", pos[1:5], "\n"))
-      cat(paste0("symPos: \n ", symPos[1:5,], "\n"))
       #symPos <- data.matrix(phospho[,c(symbolPh.col,pos.col)])
       phospho <- phospho[,-c(symbolPh.col,pos.col)]
       rownames(phospho) <- paste0(symbolsPh, "_", pos)
       #cat(paste0("head(rownames(phospho)): \n ", head(rownames(phospho)), "\n"))
-      cat(paste0("head(symPos): \n ", head(symPos), "\n"))
+      #cat(paste0("head(symPos): \n ", head(symPos), "\n"))
     }
-    else{
-      if (!is.null(bad)){
-        counts <- counts[-bad, -symbol.col]
-        rownames(counts) <- symbols[-bad]
-      }
-      else{
-        counts <- counts[,-symbol.col]
-        rownames(counts) <- symbols
-      }
-    }
+    # NB: when single == FALSE, phospho row names were set above (197-200)
+    # and counts is left untouched here. Any counts symbol-column handling is
+    # the responsibility of the symbol.col branch; the previous 'else' block
+    # referenced undefined variables (bad/symbol.col/symbols) and crashed
+    # whenever symbolPh.col was used without symbol.col.
   }
 
     if (is.null(rownames(counts)) || typeof(rownames(counts)) != "character")
@@ -239,7 +233,7 @@ prepareDataset <- function(counts, phospho = NULL, normalize = TRUE, symbol.col 
 
     if (!is.null(phospho) && !is.matrix(phospho)){
       phospho <- data.matrix(phospho)
-      cat(phospho[1:3,1:3])
+      #cat(phospho[1:3,1:3])
     }
 
     # avoid empty rows even if no normalization is performed here
@@ -339,7 +333,10 @@ prepareDataset <- function(counts, phospho = NULL, normalize = TRUE, symbol.col 
 #' First column is the gene name from the source organism 
 #' and the second column corresponds to the  homologous gene name
 #' in  Homo sapiens.
-#' @importFrom orthogene convert_orthologs
+#'
+#' @details Requires the \pkg{orthogene} package, which is an optional
+#' dependency (\code{Suggests}). Install it with
+#' \code{BiocManager::install("orthogene")} before calling this function.
 #'
 #' @export
 #' @examples
@@ -354,6 +351,13 @@ findOrthoGenes<- function(from_organism, from_values,
         method <- match.arg(method)
         if (!method  %in% c("gprofiler","homologene","babelgene"))
                 stop("Method selected should be gprofiler,homologene or babelgene")
+
+        if (!requireNamespace("orthogene", quietly = TRUE))
+                stop("Package 'orthogene' is required for findOrthoGenes() but is ",
+                     "not installed. Install it with ",
+                     "BiocManager::install(\"orthogene\"). Note: orthogene is an ",
+                     "optional dependency and is not needed for the rest of ",
+                     "PTMSignalR.", call. = FALSE)
 
           orthologs_dictionary <- orthogene::convert_orthologs(gene_df = from_values,
                                         gene_input = "rownames", 

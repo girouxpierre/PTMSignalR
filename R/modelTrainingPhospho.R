@@ -547,14 +547,14 @@
 .getEmpiricalNull <- function(ncounts, phospho, n.rand = 5, min.cor = -1,
                               with.complex = TRUE, max.pw.size = 200,
                               min.pw.size = 5, min.positive = 4) {
-  cat("\n .getEmpiricalNull - modelTrainPhos - debut")
+  #cat("\n .getEmpiricalNull - modelTrainPhos - debut")
   pindices <- .buildPermutationIndices(ncounts)
-  cat("\n ici")
+  #cat("\n ici")
   r.ds <- prepareDataset(ncounts, phospho, normalize = FALSE, method = "ALREADY",
                          min.LR.found = 0)
   #cat(r.ds)
-  cat("\n n.rand = ")
-  cat(n.rand)
+  # cat("\n n.rand = ")
+  # cat(n.rand)
   if (foreach::getDoParWorkers() > 1)
     foreach::foreach(k = seq_len(n.rand), .combine = c) %dopar% {
       ncounts(r.ds) <- .buildPermutatedCountMatrix(ncounts, pindices)
@@ -569,9 +569,9 @@
     foreach::foreach(k = seq_len(n.rand), .combine = c) %do% {
       #cat("\n 3a")
       ncounts(r.ds) <- .buildPermutatedCountMatrix(ncounts, pindices)
-      cat("\n .getEmpiricalNull - modelTrainPhos - av .getCorrelatedLR")
+      #cat("\n .getEmpiricalNull - modelTrainPhos - av .getCorrelatedLR")
       r.LR <- .getCorrelatedLR(r.ds, min.cor = min.cor)
-      cat("\n .getEmpiricalNull - modelTrainPhos - ap .getCorrelatedLR")
+      #cat("\n .getEmpiricalNull - modelTrainPhos - ap .getCorrelatedLR")
       list(.checkReceptorSignaling(r.ds, r.LR,
                                    with.complex = with.complex, max.pw.size = max.pw.size,
                                    min.pw.size = min.pw.size, min.positive = min.positive)
@@ -618,17 +618,10 @@
 .getEmpiricalNullPhospho <- function(ncounts, phospho, n.rand = 5, min.cor = -1,
                                      with.complex = TRUE, max.pw.size = 200,
                                      min.pw.size = 5, min.positive = 4, single=FALSE, symPos=NULL, r.LR=NULL) {
-  cat("\n .getEmpiricalNullPhospho - modelTrainPhos - debut")
-  cat("\n n.rand1: ",n.rand)
+
   n.rand <- 200
   pindices <- .buildPermutationIndices(phospho, n.bins = 20)
-  cat("\n pindices: \n")
-  cat(str(pindices))
-  cat("\n n.rand2: ",n.rand)
-  # if(!is.null(r.ds)){
-  #   cat("\n r.ds1@symPos: \n")
-  #   cat((r.ds@symPos[1:5,]))
-  # }
+
 
   if(single)
     r.ds <- prepareDataset(ncounts, phospho = phospho, normalize = FALSE, method = "ALREADY",
@@ -636,17 +629,11 @@
   else
     r.ds <- prepareDataset(ncounts, phospho = phospho, normalize = FALSE, method = "ALREADY",
                            min.LR.found = 0)
-  cat("\n r.ds: \n")
-  cat(str(r.ds))
-  # cat("\n r.ds@symPos: \n")
-  # cat((r.ds@symPos[1:5,]))
-  cat("\n n.rand3: ",n.rand)
-  cat("\n .getEmpiricalNullPhospho - modelTrainPhos - ap prepDataset")
+
   if (foreach::getDoParWorkers() > 1) #probleme ici
     foreach::foreach(k = seq_len(n.rand), .combine = c) %dopar% {
       phospho(r.ds) <- .buildPermutatedCountMatrix(phospho, pindices)
       r.LR <- .getCorrelatedLR(r.ds, min.cor = min.cor)
-      cat("\n if: ",str(r.ds), "\n", unlist(r.LR))
       list(.checkReceptorSignaling(r.ds, r.LR,
                                    with.complex = with.complex, max.pw.size = max.pw.size,
                                    min.pw.size = min.pw.size, min.positive = min.positive, infPhos = T)
@@ -654,19 +641,8 @@
     }
   else{
     foreach::foreach(k = seq_len(n.rand), .combine = c) %do% {
-      cat(k,"\n la ?")
       phospho(r.ds) <- .buildPermutatedCountMatrix(phospho, pindices)
-      cat("\n r.ds@phospho: ", r.ds@phospho[1:5,1:2]) #?
-      cat("\n r.ds: ", str(r.ds)) #?
       r.LR <- .getCorrelatedLR(r.ds, min.cor = min.cor)
-      cat("\n else: ", unlist(r.LR)) #?
-      cat("\n listCheckRS: \n") #pas ok
-      #rds ok, rlr ok mais rn ncounts=ABC_123 reste ok, single true
-      # cat(unlist(list(.checkReceptorSignaling(r.ds, r.LR,
-      #                                  with.complex = with.complex, max.pw.size = max.pw.size,
-      #                                  min.pw.size = min.pw.size, min.positive = min.positive, infPhos = T)
-      # )))
-      cat("\n youhou \n")
       list(.checkReceptorSignaling(r.ds, r.LR,
                                    with.complex = with.complex, max.pw.size = max.pw.size,
                                    min.pw.size = min.pw.size, min.positive = min.positive, infPhos = T)
@@ -700,13 +676,9 @@
 #' @importFrom foreach %do% %dopar%
 #' @keywords internal
 .getEmpiricalNullCorrLR <- function(ncounts, phospho, n.rand = 5, min.cor = -1) {
-  cat("\n .getEmpiricalNullCorrLR - modelTrainPhos - debut")
+  #cat("\n .getEmpiricalNullCorrLR - modelTrainPhos - debut")
   pindices <- .buildPermutationIndices(ncounts)
-  #cat(pindices)
-  #cat(head(ncounts))
-  #cat(head(phospho))
-  cat("\n n.rand =")
-  cat(n.rand)
+
   r.ds <- prepareDataset(ncounts, phospho=phospho, normalize = FALSE, method = "ALREADY",
                          min.LR.found = 0)
   str(r.ds)
@@ -719,9 +691,9 @@
     }}
   else
     foreach::foreach(k = seq_len(n.rand), .combine = c) %do% {
-      cat("\n .getEmpiricalNullCorrLR - modelTrainPhos - av .buildPermutatedCountMatrix")
+      #cat("\n .getEmpiricalNullCorrLR - modelTrainPhos - av .buildPermutatedCountMatrix")
       ncounts(r.ds) <- .buildPermutatedCountMatrix(ncounts, pindices)
-      cat("\n .getEmpiricalNullCorrLR - modelTrainPhos - av .getCorrelatedLR")
+      #cat("\n .getEmpiricalNullCorrLR - modelTrainPhos - av .getCorrelatedLR")
       list(.getCorrelatedLR(r.ds, min.cor = min.cor))
     }
 
